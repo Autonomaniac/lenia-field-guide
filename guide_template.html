@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a bound plate-book. A single reading column; each species gets a plate:
+   the live specimen in a ruled frame on the left, its notes facing it on the right;
+   on a phone the specimen sits above its notes. */
+:root {
+  --paper: #efe6d2;       /* rag paper */
+  --paper-deep: #e4d8bd;  /* foxed margin / plate ground */
+  --ink: #2b2118;         /* iron-gall ink */
+  --ink-soft: #6b5a48;    /* faded ink for captions */
+  --rule: #b9a785;        /* plate rules */
+  --accent: #8a2e1c;      /* red-ink rubrication */
+  --font-display: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-caps: "IM Fell English SC", "IM Fell English", Georgia, serif;
+  --font-body: "Libre Caslon Text", "Iowan Old Style", Georgia, serif;
+  /* William Smith's map washes, one per species */
+  --wash-1: #3f6f8f; --wash-2: #a8742a; --wash-3: #5d7a3a; --wash-4: #9b4a52;
+  --wash-5: #6a5a8c; --wash-6: #2f7d72; --wash-7: #b0562b; --wash-8: #4a4a6a;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1c1813; --paper-deep: #241f18; --ink: #eadfc8; --ink-soft: #a8987f;
+    --rule: #4d4232; --accent: #d9826a;
+    --wash-1: #7fb0d0; --wash-2: #d9a75a; --wash-3: #9bbd72; --wash-4: #d68a92;
+    --wash-5: #a99ad0; --wash-6: #6fc0b2; --wash-7: #e2915f; --wash-8: #9a9ac0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1c1813; --paper-deep: #241f18; --ink: #eadfc8; --ink-soft: #a8987f;
+  --rule: #4d4232; --accent: #d9826a;
+  --wash-1: #7fb0d0; --wash-2: #d9a75a; --wash-3: #9bbd72; --wash-4: #d68a92;
+  --wash-5: #a99ad0; --wash-6: #6fc0b2; --wash-7: #e2915f; --wash-8: #9a9ac0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.62;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+.book { max-width: 62rem; margin: 0 auto; padding-inline: max(16px, 4vw); padding-block: 3rem 5rem; }
+.prose { max-width: 38rem; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+.caps { font-family: var(--font-caps); letter-spacing: 0.06em; }
+.num { font-variant-numeric: lining-nums tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* title page */
+.titlepage { display: grid; gap: 1.5rem; justify-items: center; text-align: center; padding-block: 2rem 3.5rem;
+  border-bottom: 1px solid var(--rule); }
+.titlepage .over { font-family: var(--font-caps); letter-spacing: 0.18em; font-size: 0.85rem; color: var(--ink-soft); }
+.titlepage h1 { font-size: clamp(3rem, 11vw, 6.5rem); letter-spacing: 0.01em; }
+.titlepage .sub { font-family: var(--font-display); font-style: italic; font-size: clamp(1.1rem, 3vw, 1.45rem); max-width: 34rem; }
+.titlepage .plate { text-align: left; width: 100%; margin-block: 1rem; }
+.frontis { display: grid; gap: 0.5rem; justify-items: center; }
+.frontis canvas { width: min(18rem, 70vw); }
+.imprint { font-family: var(--font-caps); font-size: 0.85rem; letter-spacing: 0.1em; color: var(--ink-soft); }
+
+section.chapter { padding-block: 3.5rem 1rem; display: grid; gap: 1.2rem; }
+section.chapter > h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+.chapter .kicker { font-family: var(--font-caps); letter-spacing: 0.14em; font-size: 0.85rem; color: var(--accent); }
+.dropcap::first-letter { font-family: var(--font-display); float: left; font-size: 3.4em; line-height: 0.85; padding: 0.06em 0.08em 0 0; color: var(--accent); }
+
+table.tally { border-collapse: collapse; font-size: 0.95rem; width: 100%; max-width: 30rem; margin-bottom: 1.2em; }
+table.tally td { padding: 0.22rem 0; border-bottom: 1px dotted var(--rule); vertical-align: baseline; }
+table.tally td:last-child { text-align: right; font-variant-numeric: lining-nums tabular-nums; padding-left: 1rem; }
+table.tally tr.total td { border-bottom: 1px solid var(--ink-soft); font-weight: 700; }
+
+/* plates */
+.plate { margin-block: 3rem; padding: clamp(1rem, 3vw, 2rem); background: var(--paper-deep);
+  border: 1px solid var(--rule); outline: 1px solid var(--rule); outline-offset: 4px; }
+.plate-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem;
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; margin-bottom: 1.2rem; }
+.plate-no { font-family: var(--font-caps); letter-spacing: 0.16em; font-size: 0.9rem; color: var(--ink-soft); }
+.plate-head h3 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+.plate-head .latin { font-family: var(--font-display); font-style: italic; color: var(--ink-soft); font-size: 1.05rem; }
+.plate-body { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 1.6rem 2.2rem; align-items: start; }
+@media (max-width: 46rem) { .plate-body { grid-template-columns: minmax(0, 1fr); } }
+.specimen { display: grid; gap: 0.6rem; min-width: 0; }
+.lens { position: relative; border: 1px solid var(--ink-soft); background: var(--paper); aspect-ratio: 1; max-width: 100%; }
+.lens canvas { display: block; width: 100%; height: 100%; }
+.lens-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-top: -0.25rem;
+  font-size: 0.75rem; color: var(--ink-soft); }
+.lens-foot .scale { display: flex; align-items: center; gap: 0.45rem; font-family: var(--font-caps); letter-spacing: 0.08em; white-space: nowrap; }
+.lens-foot .scale i { display: block; height: 0.45rem; border: 1.5px solid var(--ink-soft); border-top: 0; }
+.lens-foot .clock { font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.controls button { font-family: var(--font-caps); letter-spacing: 0.06em; font-size: 0.85rem; color: var(--ink);
+  background: transparent; border: 1px solid var(--rule); padding: 0.28rem 0.7rem; cursor: pointer; border-radius: 2px; }
+.controls button:hover { border-color: var(--ink-soft); }
+.controls button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.figs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.fig { display: grid; gap: 0.15rem; }
+.fig canvas { width: 100%; height: 4.2rem; display: block; }
+.fig figcaption, .figcap { font-size: 0.74rem; color: var(--ink-soft); font-style: italic; line-height: 1.35; }
+.notes { min-width: 0; display: grid; gap: 1rem; }
+.notes .field { font-size: 1.02rem; }
+.notes .field p:first-child::first-line { font-variant: small-caps; letter-spacing: 0.03em; }
+dl.measures { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.15rem 1rem; margin: 0; font-size: 0.9rem; }
+dl.measures dt { font-family: var(--font-caps); letter-spacing: 0.05em; color: var(--ink-soft); }
+dl.measures dd { margin: 0; font-variant-numeric: lining-nums tabular-nums; min-width: 0; }
+.rule-line { font-size: 0.82rem; color: var(--ink-soft); font-variant-numeric: lining-nums; overflow-wrap: anywhere; }
+.meetings { font-size: 0.92rem; }
+.meetings h4, .notes h4 { font-family: var(--font-caps); font-weight: 400; letter-spacing: 0.1em; font-size: 0.85rem; margin: 0 0 0.3rem; color: var(--accent); }
+.meetings ul { margin: 0; padding-left: 1.1rem; }
+
+.closing p { max-width: 38rem; }
+.colophon { margin-top: 4rem; border-top: 1px solid var(--rule); padding-top: 1.2rem; font-size: 0.85rem; color: var(--ink-soft); display: grid; gap: 0.6rem; }
+.colophon p { max-width: 42rem; }
+nav.toc ol { columns: 2 14rem; padding-left: 1.4rem; margin: 0; }
+nav.toc li { break-inside: avoid; }
+nav.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--rule); }
+nav.toc a:hover { border-bottom-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="book">
+/*CONTENT*/
+</div>
+<script>
+/*LENIA_JS*/
+</script>
+<script>
+const SPECIMENS = /*SPECIMENS*/;
+/*GUIDE_JS*/
+</script>
+</body>
+</html>

@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Garden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a bound plate-book. A single reading column; each species gets a plate:
+   the live specimen in a ruled frame on the left, its notes facing it on the right;
+   on a phone the specimen sits above its notes. */
+:root {
+  --paper: #efe6d2;       /* rag paper */
+  --paper-deep: #e4d8bd;  /* foxed margin / plate ground */
+  --ink: #2b2118;         /* iron-gall ink */
+  --ink-soft: #6b5a48;    /* faded ink for captions */
+  --rule: #b9a785;        /* plate rules */
+  --accent: #8a2e1c;      /* red-ink rubrication */
+  --font-display: "IM Fell English", "Iowan Old Style", Georgia, serif;
+  --font-caps: "IM Fell English SC", "IM Fell English", Georgia, serif;
+  --font-body: "Libre Caslon Text", "Iowan Old Style", Georgia, serif;
+  /* William Smith's map washes, one per species */
+  --wash-1: #3f6f8f; --wash-2: #a8742a; --wash-3: #5d7a3a; --wash-4: #9b4a52;
+  --wash-5: #6a5a8c; --wash-6: #2f7d72; --wash-7: #b0562b; --wash-8: #4a4a6a;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1c1813; --paper-deep: #241f18; --ink: #eadfc8; --ink-soft: #a8987f;
+    --rule: #4d4232; --accent: #d9826a;
+    --wash-1: #7fb0d0; --wash-2: #d9a75a; --wash-3: #9bbd72; --wash-4: #d68a92;
+    --wash-5: #a99ad0; --wash-6: #6fc0b2; --wash-7: #e2915f; --wash-8: #9a9ac0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1c1813; --paper-deep: #241f18; --ink: #eadfc8; --ink-soft: #a8987f;
+  --rule: #4d4232; --accent: #d9826a;
+  --wash-1: #7fb0d0; --wash-2: #d9a75a; --wash-3: #9bbd72; --wash-4: #d68a92;
+  --wash-5: #a99ad0; --wash-6: #6fc0b2; --wash-7: #e2915f; --wash-8: #9a9ac0;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.62;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+}
+.book { max-width: 62rem; margin: 0 auto; padding-inline: max(16px, 4vw); padding-block: 3rem 5rem; }
+.prose { max-width: 38rem; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; line-height: 1.15; margin: 0; }
+p { margin: 0 0 1em; }
+a { color: var(--accent); }
+.caps { font-family: var(--font-caps); letter-spacing: 0.06em; }
+.num { font-variant-numeric: lining-nums tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* title page */
+.titlepage { display: grid; gap: 1.5rem; justify-items: center; text-align: center; padding-block: 2rem 3.5rem;
+  border-bottom: 1px solid var(--rule); }
+.titlepage .over { font-family: var(--font-caps); letter-spacing: 0.18em; font-size: 0.85rem; color: var(--ink-soft); }
+.titlepage h1 { font-size: clamp(3rem, 11vw, 6.5rem); letter-spacing: 0.01em; }
+.titlepage .sub { font-family: var(--font-display); font-style: italic; font-size: clamp(1.1rem, 3vw, 1.45rem); max-width: 34rem; }
+.titlepage .plate { text-align: left; width: 100%; margin-block: 1rem; }
+.frontis { display: grid; gap: 0.5rem; justify-items: center; }
+.frontis canvas { width: min(18rem, 70vw); }
+.imprint { font-family: var(--font-caps); font-size: 0.85rem; letter-spacing: 0.1em; color: var(--ink-soft); }
+
+section.chapter { padding-block: 3.5rem 1rem; display: grid; gap: 1.2rem; }
+section.chapter > h2 { font-size: clamp(1.9rem, 5vw, 2.6rem); }
+.chapter .kicker { font-family: var(--font-caps); letter-spacing: 0.14em; font-size: 0.85rem; color: var(--accent); }
+.dropcap::first-letter { font-family: var(--font-display); float: left; font-size: 3.4em; line-height: 0.85; padding: 0.06em 0.08em 0 0; color: var(--accent); }
+
+table.tally { border-collapse: collapse; font-size: 0.95rem; width: 100%; max-width: 30rem; margin-bottom: 1.2em; }
+table.tally td { padding: 0.22rem 0; border-bottom: 1px dotted var(--rule); vertical-align: baseline; }
+table.tally td:last-child { text-align: right; font-variant-numeric: lining-nums tabular-nums; padding-left: 1rem; }
+table.tally tr.total td { border-bottom: 1px solid var(--ink-soft); font-weight: 700; }
+
+/* plates */
+.plate { margin-block: 3rem; padding: clamp(1rem, 3vw, 2rem); background: var(--paper-deep);
+  border: 1px solid var(--rule); outline: 1px solid var(--rule); outline-offset: 4px; }
+.plate-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem;
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; margin-bottom: 1.2rem; }
+.plate-no { font-family: var(--font-caps); letter-spacing: 0.16em; font-size: 0.9rem; color: var(--ink-soft); }
+.plate-head h3 { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+.plate-head .latin { font-family: var(--font-display); font-style: italic; color: var(--ink-soft); font-size: 1.05rem; }
+.plate-body { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: 1.6rem 2.2rem; align-items: start; }
+@media (max-width: 46rem) { .plate-body { grid-template-columns: minmax(0, 1fr); } }
+.specimen { display: grid; gap: 0.6rem; min-width: 0; }
+.lens { position: relative; border: 1px solid var(--ink-soft); background: var(--paper); aspect-ratio: 1; max-width: 100%; }
+.lens canvas { display: block; width: 100%; height: 100%; }
+.lens-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; margin-top: -0.25rem;
+  font-size: 0.75rem; color: var(--ink-soft); }
+.lens-foot .scale { display: flex; align-items: center; gap: 0.45rem; font-family: var(--font-caps); letter-spacing: 0.08em; white-space: nowrap; }
+.lens-foot .scale i { display: block; height: 0.45rem; border: 1.5px solid var(--ink-soft); border-top: 0; }
+.lens-foot .clock { font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.controls button { font-family: var(--font-caps); letter-spacing: 0.06em; font-size: 0.85rem; color: var(--ink);
+  background: transparent; border: 1px solid var(--rule); padding: 0.28rem 0.7rem; cursor: pointer; border-radius: 2px; }
+.controls button:hover { border-color: var(--ink-soft); }
+.controls button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.figs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.fig { display: grid; gap: 0.15rem; }
+.fig canvas { width: 100%; height: 4.2rem; display: block; }
+.fig figcaption, .figcap { font-size: 0.74rem; color: var(--ink-soft); font-style: italic; line-height: 1.35; }
+.notes { min-width: 0; display: grid; gap: 1rem; }
+.notes .field { font-size: 1.02rem; }
+.notes .field p:first-child::first-line { font-variant: small-caps; letter-spacing: 0.03em; }
+dl.measures { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.15rem 1rem; margin: 0; font-size: 0.9rem; }
+dl.measures dt { font-family: var(--font-caps); letter-spacing: 0.05em; color: var(--ink-soft); }
+dl.measures dd { margin: 0; font-variant-numeric: lining-nums tabular-nums; min-width: 0; }
+.rule-line { font-size: 0.82rem; color: var(--ink-soft); font-variant-numeric: lining-nums; overflow-wrap: anywhere; }
+.meetings { font-size: 0.92rem; }
+.meetings h4, .notes h4 { font-family: var(--font-caps); font-weight: 400; letter-spacing: 0.1em; font-size: 0.85rem; margin: 0 0 0.3rem; color: var(--accent); }
+.meetings ul { margin: 0; padding-left: 1.1rem; }
+
+.closing p { max-width: 38rem; }
+.colophon { margin-top: 4rem; border-top: 1px solid var(--rule); padding-top: 1.2rem; font-size: 0.85rem; color: var(--ink-soft); display: grid; gap: 0.6rem; }
+.colophon p { max-width: 42rem; }
+nav.toc ol { columns: 2 14rem; padding-left: 1.4rem; margin: 0; }
+nav.toc li { break-inside: avoid; }
+nav.toc a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--rule); }
+nav.toc a:hover { border-bottom-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="book">
+<header class="titlepage">
+  <div class="over">A Field Guide to the Creatures of</div>
+  <h1>The Garden</h1>
+  <div class="sub">Being an account of the forms that persist in a continuous world of one hundred and twenty-eight cells square, with plates drawn from life</div>
+  
+<article class="plate" id="orbium" data-id="orbium" aria-labelledby="orbium-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Frontispiece</div><h3 id="orbium-name">Orbium</h3></div>
+    <div class="latin">Orbium unicaudatus Chan, 2019</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of Orbium"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Not found by me. This is Bert Chan's type specimen, copied from his published catalogue and grown here as a check that my world obeys the same laws as his. It glides at 0.62 cells a step, one body length every 29 steps, holding a dead-straight course and a mass of 73.6 for as long as I ran it (10,000 steps).</p><p>Two Orbia meeting head-on destroyed each other at their first meeting. Meeting at a glancing angle or passing close, both survived the first contact; on this small looping world they met again and again, and none survived 4,000 steps.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>73.7 (range 73.2–74.0)</dd><dt>Body</dt><dd>20 cells across (1.52 R)</dd><dt>Speed</dt><dd>0.623 cells/step; one body length every 32 steps</dd><dt>Course</dt><dd>straight (heading changes &lt; 0.05° per 100 steps)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.25%)</dd><dt>Flesh</dt><dd>96% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 4e-10 was 1e-10 after 1,500 steps</dd><dt>Mirror</dt><dd>0.90 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      
+      <div class="rule-line">Rule: R = 13 cells · T = 10 (dt = 0.1) · rings b = [1] · μ = 0.15 · σ = 0.015 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+  <div class="imprint">Collected October 2026 &middot; by Claude, on credits given by Mark Halligan</div>
+</header>
+
+<section class="chapter" id="preface">
+  <div class="kicker">Preface</div>
+  <h2>On the collecting</h2>
+  <div class="prose">
+    <p class="dropcap">The specimens in this book were collected in a single search, run for about seven and a quarter hours on four processor cores. Before the search began I reproduced Bert Chan's Orbium, the frontispiece above, as a check that my world obeys the same laws as his. It glides as his does.</p>
+    <p>The collecting began badly. My first method seeded each random rule with a small blob of noise, and in some six hundred tries it never produced a creature that moved. To find out whether gliders were simply rare or my seeds were at fault, I gave Orbium's own rule 168 of my blobs. All 168 died. Large squares of noise, which I call soups, did better: under Orbium's rule about one soup in twenty condensed into an Orbium. So the search used soups from then on.</p>
+    <p>The search tried <span class="num">41,712</span> candidates of three kinds:</p>
+    <table class="tally">
+      <tr><td>Random rules, each seeded with a soup</td><td>13,013</td></tr>
+      <tr><td>Random rules whose edge of life I first located (three soups each)</td><td>7,967</td></tr>
+      <tr><td>Mutants of earlier finds, seeded with their parent's body</td><td>20,732</td></tr>
+      <tr class="total"><td>Candidates tried</td><td>41,712</td></tr>
+    </table>
+    <p>The edge of life is found by halving. For a given kernel, a soup dies if &mu; is too high and spreads over the world if &mu; is too low. I bisected between the two and seeded soups in the narrow band between. Random soups condensed into a separate body 0.59% of the time (77 bodies from 13,013 soups); soups at the edge did so 1.50% of the time (359 from 23,901). Most of what was tried did not live. The outcomes below count bodies, not candidates: one soup could yield up to three bodies, each tested on its own.</p>
+    <table class="tally">
+      <tr><td>Died away</td><td>28,799</td></tr>
+      <tr><td>Spread over the world</td><td>16,616</td></tr>
+      <tr><td>Settled into a faint, even haze</td><td>1,399</td></tr>
+      <tr><td>Failed when re-seeded from a disturbed copy</td><td>1,127</td></tr>
+      <tr><td>Lived, but failed the long-run tests on mass, size or shape</td><td>333</td></tr>
+      <tr><td>Would not stay a single body</td><td>147</td></tr>
+      <tr class="total"><td>Passed every test</td><td>9,290</td></tr>
+      <tr><td colspan="2" style="text-align:left;font-style:italic;font-size:0.85rem">The outcomes add to more than the candidates because a soup can yield several bodies.</td></tr>
+    </table>
+    <p>To pass, a creature had to run 5,000 steps with its mass neither collapsing nor climbing, stay one compact body, and then survive twice more from disturbed copies of itself for 3,000 steps each. Each copy had ten per cent noise added; one was turned by a right angle, the other by an arbitrary angle. Only 129 of the 9,290 survivors arose independently, from soups. The rest are descendants of those. Two ancestors, both still discs, account for 72% of all survivors.</p>
+    <p>The search kept an archive of 970 survivors that differed most from what it already had. From these I picked the 48 most different from one another, added eight I had noticed on earlier contact sheets, and ran all 56 again alone for 10,000 steps. Three failed that longer run, although they had passed everything before. One drifted in mass, one broke into pieces and one died. The seventeen plates are my choice from the 53 that held. I chose them to differ from one another, and I included one creature (Plate XVII) that I do not believe is real life in the sense Lenia intends.</p>
+    <p><em>What the search could not explore.</em> Only single-channel Lenia; the multi-channel and Flow-Lenia worlds were left alone. One world size, 128 cells square, which is small enough that travelling creatures meet themselves coming round. Kernel radii from 8 to 16 cells, and two families of kernel and growth curve. Persistence was tested for thousands of steps, not millions. Every measurement on a plate comes from one run, and every meeting between two copies was staged once. Finally, the search mostly explored by mutating a few early finds, so these plates show what lies near those finds more than a fair sample of all possible rules.</p>
+
+  </div>
+</section>
+
+<section class="chapter" id="reading">
+  <div class="kicker">How to read a plate</div>
+  <h2>The world, the rule, and the specimen</h2>
+  <div class="prose">
+    <p class="dropcap">Every creature here lives in the same small world: a square of 128 by 128 cells whose edges are joined, so that whatever leaves on the right comes back on the left. Each cell holds a number between nought and one. At every step, each cell looks at a ring of neighbours out to a distance <em>R</em>, weighted by the kernel drawn in figure a, and takes their weighted average. That average, the potential, is passed through the growth curve of figure b. Where the curve is above its centre line the cell gains, where it is below the cell loses, and the step size is one part in <em>T</em>. Values are clipped to stay between nought and one. Nothing else happens. There is no notion of a body, a boundary or a direction anywhere in the rule.</p>
+    <p>A plate shows one rule and one starting pattern. The specimen in the frame is not a recording. Your browser is computing it as you watch, from the same numbers my own runs started from, so pressing Restart begins the same life again. For the orderly species, the browser's run and mine agree to within a few parts in ten trillion for thousands of steps. For the chaotic ones they agree only at first, because a difference in the last decimal place grows until the two runs part company. They still behave as the same species, but they do not follow the same path. Each plate says which kind its creature is.</p>
+    <p>The measurements beside each specimen were taken from a single uninterrupted run of 10,000 steps, ignoring the first 2,000. A step is one application of the rule, and the clock under each specimen counts them. Time <em>t</em> is steps divided by <em>T</em>. <em>Mass</em> is the sum of all cell values. <em>Body</em> is the creature's extent, measured along its direction of travel for movers. <em>Flesh</em> says how much of the body holds intermediate values rather than sitting pinned at nought or one. <em>Temper</em> records whether a nudge of one part in ten billion dies away or grows. <em>Mirror</em> is how closely the body matches its own reflection about its best axis, where 1.00 is a perfect match. Where I say a thing happened once, I saw it once.</p>
+    <p>Under the lens, the view is magnified twice and follows the creature. Show the whole world to see the full square and the creature travelling across it.</p>
+  </div>
+</section>
+
+<section class="chapter" id="contents">
+  <div class="kicker">Contents</div>
+  <h2>The plates</h2>
+  <nav class="toc"><ol><li><a href="#comet">The Comet</a></li><li><a href="#pearl">The Pearl</a></li><li><a href="#flicker">The Flicker</a></li><li><a href="#wheel">The Wheel</a></li><li><a href="#rambler">The Rambler</a></li><li><a href="#looper">The Looper</a></li><li><a href="#pip">The Pip</a></li><li><a href="#trefoil">The Trefoil</a></li><li><a href="#rosette">The Rosette</a></li><li><a href="#bellows">The Bellows</a></li><li><a href="#hexbellows">The Hexagonal Bellows</a></li><li><a href="#star">The Seven-rayed Star</a></li><li><a href="#cog">The Cog</a></li><li><a href="#primrose">The Primrose</a></li><li><a href="#target">The Target</a></li><li><a href="#coral">The Brain Coral</a></li><li><a href="#maze">The Lattice Maze</a></li></ol></nav>
+</section>
+
+
+<article class="plate" id="comet" data-id="comet" aria-labelledby="comet-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate I</div><h3 id="comet-name">The Comet</h3></div>
+    <div class="latin">Cometes levis</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Comet"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>The fastest thing in the garden and the softest: every cell of its body holds an intermediate value, none pinned at nought or one. It covers 0.41 cells a step, a body length every 42 steps, on a course that did not bend by a measurable amount in 8,000 steps. Mass held between 47.7 and 48.2.</p><p>Its line hatched as a glider straight out of a random soup, on a single-ringed rule close to Orbium's. Four generations of mutation made it faster, from 0.55 to 0.63 kernel radii per unit time. It is the nearest thing in this collection to Orbium, found independently.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>47.9 (range 47.7–48.2)</dd><dt>Body</dt><dd>17 cells across (1.33 R)</dd><dt>Speed</dt><dd>0.409 cells/step; one body length every 42 steps</dd><dt>Course</dt><dd>straight (heading changes &lt; 0.05° per 100 steps)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.23%)</dd><dt>Flesh</dt><dd>100% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>steady, with slow drift: a nudge of 3e-10 grew to 8e-09 in 1,500 steps</dd><dt>Mirror</dt><dd>0.99 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Head-on: two comets remained 120 steps after first contact.</li><li>Glancing: both vanished.</li><li>Passing close: two remained.</li><li>In every set-up both were gone by step 4,000, after repeated meetings on the small looping world. Each set-up was run once.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 20 (dt = 0.05) · rings b = [1] · μ = 0.1058 · σ = 0.00935 · exponential kernel, gaussian growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="pearl" data-id="pearl" aria-labelledby="pearl-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate II</div><h3 id="pearl-name">The Pearl</h3></div>
+    <div class="latin">Margarita currens</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Pearl"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 10 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A shaded sphere that rolls in a straight line at 0.18 cells a step, one body length every 107 steps. Its mass beats steadily, &plusmn;3.8% with a period of 54 steps, and the beat is regular (autocorrelation 0.98 at one period).</p><p>Its ancestor fourteen generations back was a disc that did not move at all. The inner ring of its kernel strengthened over the fifth and sixth generations with no movement. Movement first appeared at the seventh, when &mu; fell from 0.326 to 0.269. Over the next seven generations speed rose from 0.10 to 0.36 kernel radii per unit time, though one descendant along the way stood still again.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>122.7 (range 113.8–130.1)</dd><dt>Body</dt><dd>19 cells across (1.90 R)</dd><dt>Speed</dt><dd>0.178 cells/step; one body length every 107 steps</dd><dt>Course</dt><dd>straight (heading changes &lt; 0.05° per 100 steps)</dd><dt>Pulse</dt><dd>mass swings ±3.8% with period 54 steps</dd><dt>Flesh</dt><dd>75% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>steady, with slow drift: a nudge of 3e-10 grew to 5e-07 in 1,500 steps</dd><dt>Mirror</dt><dd>0.98 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>In all three set-ups (head-on, glancing, passing), contact came about 110&ndash;120 steps in, and the meeting spread over the whole world.</li></ul></div>
+      <div class="rule-line">Rule: R = 10 cells · T = 20 (dt = 0.05) · rings b = [7/12, 3/4, 1] · μ = 0.2413 · σ = 0.03866 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="flicker" data-id="flicker" aria-labelledby="flicker-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate III</div><h3 id="flicker-name">The Flicker</h3></div>
+    <div class="latin">Cursor tremulus</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Flicker"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 10 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Kin to the Pearl, twelve generations from the same still ancestor, and nearly as fast as the Comet: 0.38 cells a step, a body length every 43 steps, on a course that is nearly straight (straightness 0.94). Inside, it is the most unruly creature I measured. Its mass swings between 97 and 177 with no clean period, and a difference of three parts in ten billion grows e-fold every 21 steps.</p><p>It is ordered in where it goes and chaotic in what it is.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>134.7 (range 96.8–177.2)</dd><dt>Body</dt><dd>17 cells across (1.65 R)</dd><dt>Speed</dt><dd>0.381 cells/step; one body length every 43 steps</dd><dt>Course</dt><dd>turns 0.55° per 100 steps, anticlockwise</dd><dt>Pulse</dt><dd>mass varies ±13.3%, without a clean period</dd><dt>Flesh</dt><dd>56% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 21 steps</dd><dt>Mirror</dt><dd>0.99 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>In all three set-ups, contact came within 50&ndash;60 steps and spread over the whole world.</li></ul></div>
+      <div class="rule-line">Rule: R = 10 cells · T = 5 (dt = 0.2) · rings b = [7/12, 1/2, 1] · μ = 0.2594 · σ = 0.04247 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="wheel" data-id="wheel" aria-labelledby="wheel-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate IV</div><h3 id="wheel-name">The Wheel</h3></div>
+    <div class="latin">Rota recta</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Wheel"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A thick ring with an off-centre hole, travelling hole-first in a perfectly straight line. It is slow, 0.078 cells a step, a body length every 245 steps, and the most constant creature in the collection: mass between 190.9 and 191.9, mirror symmetry 1.00, and a nudge applied to it dies away rather than grows.</p><p>Four generations back its ancestor was a still disc. Movement arrived with the generation that widened &sigma; from 0.045 to 0.059 and raised &mu; from 0.304 to 0.336.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>191.5 (range 190.9–191.9)</dd><dt>Body</dt><dd>19 cells across (1.46 R)</dd><dt>Speed</dt><dd>0.078 cells/step; one body length every 244 steps</dd><dt>Course</dt><dd>straight (heading changes &lt; 0.05° per 100 steps)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.17%)</dd><dt>Flesh</dt><dd>43% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 2e-10 after 1,500 steps</dd><dt>Mirror</dt><dd>1.00 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>In all three set-ups, contact came 240&ndash;260 steps in, and the meeting spread over the whole world.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 10 (dt = 0.1) · rings b = [1, 5/6] · μ = 0.3355 · σ = 0.05925 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="rambler" data-id="rambler" aria-labelledby="rambler-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate V</div><h3 id="rambler-name">The Rambler</h3></div>
+    <div class="latin">Erro vagans</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Rambler"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Moves briskly, 0.12 cells a step, but goes nowhere in particular: over 8,000 steps its net progress was a fifth of the distance it covered (straightness 0.20). Its body turns with its path, both at about 7.7&deg; per 100 steps clockwise. It is chaotic, with small differences growing e-fold every 60 steps.</p><p>Same family as the Wheel, sixteen generations from the same still disc.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>133.6 (range 121.6–146.0)</dd><dt>Body</dt><dd>19 cells across (1.42 R)</dd><dt>Speed</dt><dd>0.120 cells/step; one body length every 154 steps</dd><dt>Course</dt><dd>turns 7.73° per 100 steps, clockwise</dd><dt>Pulse</dt><dd>mass varies ±2.0%, without a clean period</dd><dt>Flesh</dt><dd>77% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 60 steps</dd><dt>Mirror</dt><dd>0.98 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Head-on: they rambled apart and did not meet until step 2,070; that meeting spread over the world.</li><li>Glancing: never met in 4,000 steps.</li><li>Passing: met at step 2,660 and spread over the world.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 20 (dt = 0.05) · rings b = [1, 1] · μ = 0.2215 · σ = 0.02988 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="looper" data-id="looper" aria-labelledby="looper-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate VI</div><h3 id="looper-name">The Looper</h3></div>
+    <div class="latin">Stella gyrans</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Looper"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 14 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A ragged five-armed body whose outline never settles, travelling in loops. Its heading turns about 150&deg; per 100 steps clockwise, a full circle roughly every 240 steps, while it advances 0.048 cells a step. Mass runs between 203 and 243 with a rough period of 65 steps. It is chaotic (e-fold every 90 steps).</p><p>In one check in a hundred it showed as two bodies for a moment before closing up again. Its line began from a soup hatched at the edge of life, on a three-ringed exponential rule.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>217.1 (range 203.4–242.6)</dd><dt>Body</dt><dd>25 cells across (1.78 R)</dd><dt>Speed</dt><dd>0.047 cells/step; one body length every 525 steps</dd><dt>Course</dt><dd>turns 150.59° per 100 steps, clockwise</dd><dt>Pulse</dt><dd>mass swings ±4.0% with period 65 steps</dd><dt>Flesh</dt><dd>44% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 90 steps</dd><dt>Mirror</dt><dd>0.88 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Two loopers placed half a world apart never met in 4,000 steps in any of the three set-ups. They loop too tightly to find each other.</li></ul></div>
+      <div class="rule-line">Rule: R = 14 cells · T = 10 (dt = 0.1) · rings b = [1, 1/6, 5/6] · μ = 0.2455 · σ = 0.03127 · exponential kernel, gaussian growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="pip" data-id="pip" aria-labelledby="pip-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate VII</div><h3 id="pip-name">The Pip</h3></div>
+    <div class="latin">Granum errans</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Pip"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 12 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Small, dense and finely textured, it jitters about at 0.035 cells a step with almost no net direction (straightness 0.05). It is chaotic, with differences growing e-fold every 38 steps. Most of its body is pinned at nought or one; only 12% of its cells are graded.</p><p>The only creature here that is exactly as it hatched: it came out of a random soup on a four-ringed exponential rule and was never mutated. In one check in a hundred it briefly showed as two bodies.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>107.2 (range 101.0–114.1)</dd><dt>Body</dt><dd>16 cells across (1.34 R)</dd><dt>Speed</dt><dd>0.035 cells/step; one body length every 455 steps</dd><dt>Course</dt><dd>turns 5.98° per 100 steps, clockwise</dd><dt>Pulse</dt><dd>mass varies ±1.5%, without a clean period</dd><dt>Flesh</dt><dd>12% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 38 steps</dd><dt>Mirror</dt><dd>0.94 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Two pips placed half a world apart were both still present at step 4,000 in all three set-ups. I did not confirm that they ever touched.</li></ul></div>
+      <div class="rule-line">Rule: R = 12 cells · T = 10 (dt = 0.1) · rings b = [2/3, 1, 5/6, 1] · μ = 0.2062 · σ = 0.01947 · exponential kernel, gaussian growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="trefoil" data-id="trefoil" aria-labelledby="trefoil-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate VIII</div><h3 id="trefoil-name">The Trefoil</h3></div>
+    <div class="latin">Trifolium rotans</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Trefoil"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Three lobes around a hollow core, spinning in place: 217&deg; per 100 steps clockwise, a full turn every 166 steps. I confirmed the spin by eye frame by frame as well as by measurement. Apart from the turning it is constant, with mass between 121.9 and 122.8 and nudges dying away.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>122.4 (range 121.9–122.8)</dd><dt>Body</dt><dd>16 cells across (1.23 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Spin</dt><dd>216.88° per 100 steps, clockwise (a full turn in 166 steps)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.23%)</dd><dt>Flesh</dt><dd>50% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 6e-11 after 1,500 steps</dd><dt>Mirror</dt><dd>0.89 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Two trefoils placed side by side, a quarter or three-quarters of a kernel radius apart, became a single trefoil within about 100 steps. One of its kind remained at step 4,000 in both set-ups.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 10 (dt = 0.1) · rings b = [1, 7/12] · μ = 0.2752 · σ = 0.03313 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="rosette" data-id="rosette" aria-labelledby="rosette-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate IX</div><h3 id="rosette-name">The Rosette</h3></div>
+    <div class="latin">Rosula lenta</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Rosette"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A six-pointed open ring that turns slowly clockwise: 67&deg; per 100 steps, a full turn every 540 steps. Two independent measures agreed on the rate (66.7 and 66.9&deg;). Mass is steady between 94.0 and 95.8, and nudges die away.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>95.0 (range 94.0–95.8)</dd><dt>Body</dt><dd>17 cells across (1.31 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Spin</dt><dd>66.70° per 100 steps, clockwise (a full turn in 540 steps)</dd><dt>Pulse</dt><dd>mass swings ±0.5% with period 45 steps</dd><dt>Flesh</dt><dd>66% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 3e-11 after 1,500 steps</dd><dt>Mirror</dt><dd>0.85 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>A quarter-radius apart: spread over the world.</li><li>Three-quarters of a radius apart: the two never interacted and both were still turning at step 4,000.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 20 (dt = 0.05) · rings b = [1, 1, 2/9] · μ = 0.1962 · σ = 0.02103 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="bellows" data-id="bellows" aria-labelledby="bellows-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate X</div><h3 id="bellows-name">The Bellows</h3></div>
+    <div class="latin">Follis rotundus</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Bellows"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 12 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A ring that breathes. It fills to a solid disc and hollows to a ring again every 21 steps, its mass swinging &plusmn;18% between 166 and 286. The rhythm is exact (autocorrelation 1.00 at one period), and a nudge to it shrank ten-thousand-fold in 1,500 steps. It is perfectly mirror-symmetric (1.00).</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>227.6 (range 165.6–286.0)</dd><dt>Body</dt><dd>17 cells across (1.42 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>mass swings ±18.1% with period 21 steps</dd><dt>Flesh</dt><dd>57% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 1e-14 after 1,500 steps</dd><dt>Mirror</dt><dd>1.00 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, the pair spread over the world.</li></ul></div>
+      <div class="rule-line">Rule: R = 12 cells · T = 5 (dt = 0.2) · rings b = [1/3, 5/12, 1] · μ = 0.3112 · σ = 0.06385 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="hexbellows" data-id="hexbellows" aria-labelledby="hexbellows-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XI</div><h3 id="hexbellows-name">The Hexagonal Bellows</h3></div>
+    <div class="latin">Follis sexangulus</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Hexagonal Bellows"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 12 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>The Bellows' own child. One mutation raised &mu; by 0.6% and &sigma; by 4%. The child breathes more slowly (every 29 steps, &plusmn;17%), has a hexagonal outline, and is chaotic, with differences growing e-fold every 52 steps. Its parent damps every disturbance.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>243.8 (range 169.0–295.8)</dd><dt>Body</dt><dd>18 cells across (1.50 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>mass swings ±16.6% with period 29 steps</dd><dt>Flesh</dt><dd>56% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 52 steps</dd><dt>Mirror</dt><dd>1.00 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, the pair spread over the world.</li></ul></div>
+      <div class="rule-line">Rule: R = 12 cells · T = 5 (dt = 0.2) · rings b = [1/3, 5/12, 1] · μ = 0.3131 · σ = 0.0664 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="star" data-id="star" aria-labelledby="star-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XII</div><h3 id="star-name">The Seven-rayed Star</h3></div>
+    <div class="latin">Asterias fixa</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Seven-rayed Star"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A solid star of seven rays around a pale eye, 31 cells across, the largest of the ordinary creatures. It does nothing at all: mass between 358 and 368, drift negligible, nudges neither growing nor shrinking over 1,500 steps. Only 6% of its cells hold intermediate values; the rest are pinned at nought or one.</p><p>I counted the rays by eye. The measured angular pattern agrees.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>361.4 (range 358.1–367.5)</dd><dt>Body</dt><dd>31 cells across (2.38 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.47%)</dd><dt>Flesh</dt><dd>6% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 4e-10 after 1,500 steps</dd><dt>Mirror</dt><dd>0.96 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, the pair spread over the world.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 20 (dt = 0.05) · rings b = [1/3, 1/4, 1] · μ = 0.3788 · σ = 0.10252 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="cog" data-id="cog" aria-labelledby="cog-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XIII</div><h3 id="cog-name">The Cog</h3></div>
+    <div class="latin">Rota dentata</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Cog"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 11 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A solid wheel with eight teeth and a small hollow at its centre. It is completely still and completely steady, with mass between 181.3 and 182.6. Three generations from the same still ancestor as the Pearl and the Bellows, it kept that ancestor's stillness.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>182.0 (range 181.3–182.6)</dd><dt>Body</dt><dd>18 cells across (1.64 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.19%)</dd><dt>Flesh</dt><dd>7% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 3e-10 after 1,500 steps</dd><dt>Mirror</dt><dd>0.97 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, both vanished within about 150 steps of being placed.</li></ul></div>
+      <div class="rule-line">Rule: R = 11 cells · T = 20 (dt = 0.05) · rings b = [0.11, 6/11, 1] · μ = 0.3411 · σ = 0.04492 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="primrose" data-id="primrose" aria-labelledby="primrose-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XIV</div><h3 id="primrose-name">The Primrose</h3></div>
+    <div class="latin">Primula quinquefolia</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Primrose"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 11 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Five rounded petals around a small ring. It is still and steady (mass 211.0&ndash;213.1), with 16% of its cells graded. It shares its kernel rings exactly with the Seven-rayed Star (weights &#8531;, &frac14;, 1); a lower &mu; and &sigma; make five petals instead of seven rays.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>212.0 (range 211.0–213.1)</dd><dt>Body</dt><dd>19 cells across (1.73 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.17%)</dd><dt>Flesh</dt><dd>16% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>steady, with slow drift: a nudge of 3e-10 grew to 3e-09 in 1,500 steps</dd><dt>Mirror</dt><dd>0.97 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, the pair spread over the world.</li></ul></div>
+      <div class="rule-line">Rule: R = 11 cells · T = 20 (dt = 0.05) · rings b = [1/3, 1/4, 1] · μ = 0.3519 · σ = 0.07977 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="target" data-id="target" aria-labelledby="target-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XV</div><h3 id="target-name">The Target</h3></div>
+    <div class="latin">Scopus concentricus</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Target"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Two concentric rings around a dot, almost entirely pinned at nought or one (7% graded). It is still and steady, with mass between 141.8 and 145.8, and nudges die away.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>144.0 (range 141.8–145.8)</dd><dt>Body</dt><dd>15 cells across (1.15 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>mass swings ±0.7% with period 302 steps</dd><dt>Flesh</dt><dd>7% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 6e-11 after 1,500 steps</dd><dt>Mirror</dt><dd>0.97 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Side by side at both distances, both vanished within about 200 steps.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 10 (dt = 0.1) · rings b = [1, 5/6] · μ = 0.2948 · σ = 0.03983 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="coral" data-id="coral" aria-labelledby="coral-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XVI</div><h3 id="coral-name">The Brain Coral</h3></div>
+    <div class="latin">Labyrinthus cerebralis</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Brain Coral"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 13 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>A disc 59 cells across, nearly half the width of its world, filled with winding channels like a brain coral. It is utterly still (mass 1,888&ndash;1,894) and solid: 99% of its cells are pinned at nought or one. The channels are several cells wide against a kernel radius of 13. That is coarse enough that a smoother world could plausibly hold it, unlike the Maze that follows.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>1,891.7 (range 1,888.4–1,894.1)</dd><dt>Body</dt><dd>59 cells across (4.54 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.06%)</dd><dt>Flesh</dt><dd>1% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>orderly: a nudge of 3e-10 was 4e-10 after 1,500 steps</dd><dt>Mirror</dt><dd>0.83 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Too large for a fair meeting: in a world 128 cells wide, two copies placed side by side overlap from the start. I report no encounter for it.</li></ul></div>
+      <div class="rule-line">Rule: R = 13 cells · T = 10 (dt = 0.1) · rings b = [1, 1/6] · μ = 0.5308 · σ = 0.10523 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<article class="plate" id="maze" data-id="maze" aria-labelledby="maze-name">
+  <header class="plate-head">
+    <div><div class="plate-no">Plate XVII</div><h3 id="maze-name">The Lattice Maze</h3></div>
+    <div class="latin">Curiositas cancellata</div>
+  </header>
+  <div class="plate-body">
+    <div class="specimen">
+      <div class="lens"><canvas class="world" aria-label="Live simulation of The Lattice Maze"></canvas></div>
+      <div class="lens-foot"><div class="scale"><i></i><span>R = 8 cells</span></div><div class="clock"></div></div>
+      <div class="controls">
+        <button type="button" data-act="play" aria-pressed="false">Pause</button>
+        <button type="button" data-act="reset">Restart</button>
+        <button type="button" data-act="track">Under the lens</button>
+        <button type="button" data-act="fast" aria-pressed="false">Four steps a frame</button>
+      </div>
+      <div class="figs">
+        <figure class="fig" style="margin:0"><canvas class="kernel"></canvas><figcaption>Fig. a. Kernel by distance, 0 to R</figcaption></figure>
+        <figure class="fig" style="margin:0"><canvas class="growth"></canvas><figcaption>Fig. b. Growth against potential; dotted at μ</figcaption></figure>
+      </div>
+      <figure class="fig" style="margin:0"><canvas class="mass"></canvas><figcaption>Fig. c. Mass over the last 2,000 of 10,000 steps (scale exaggerated)</figcaption></figure>
+    </div>
+    <div class="notes">
+      <div class="field"><p>Included as a warning rather than a species. It is 58 cells across, seven times its kernel radius, and its interior is a maze of walls one or two cells thick, with 97% of its cells exactly nought or one. That texture is finer than anything a continuous world could hold. It persists only because the grid is made of squares. The search found a whole family of these on short-radius rules (R = 8 to 10), and they passed every test I set.</p><p>A nudge to it grows slowly (to one part in a hundred over 1,500 steps): the walls rearrange without the body coming apart.</p></div>
+      <dl class="measures"><dt>Mass</dt><dd>1,441.6 (range 1,435.1–1,446.0)</dd><dt>Body</dt><dd>58 cells across (7.25 R)</dd><dt>Speed</dt><dd>stationary (drift below 0.02 R per unit time)</dd><dt>Pulse</dt><dd>steady (mass varies ±0.11%)</dd><dt>Flesh</dt><dd>3% of body cells graded; the rest pinned at 0 or 1</dd><dt>Temper</dt><dd>chaotic: a nudge of 3e-10 grows e-fold every 98 steps</dd><dt>Mirror</dt><dd>0.76 correlation with its own reflection</dd><dt>Proven</dt><dd>10,000 steps alone; two perturbed re-seedings of 3,000 steps</dd></dl>
+      <div class="meetings"><h4>Meeting its own kind</h4><ul><li>Too large for a fair meeting: two copies overlap from the start in this world. I report no encounter for it.</li></ul></div>
+      <div class="rule-line">Rule: R = 8 cells · T = 10 (dt = 0.1) · rings b = [1, 1/12, 1/6] · μ = 0.4327 · σ = 0.06348 · polynomial kernel, polynomial growth</div>
+    </div>
+  </div>
+</article>
+
+<section class="chapter closing" id="closing">
+  <div class="kicker">Afterword</div>
+  <h2>What the garden showed me</h2>
+  <div class="prose">
+    <p class="dropcap">These are the patterns I saw across the whole search, not just the seventeen plates. Each comes with the numbers behind it. Where the numbers are thin, I say so.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Life lives in a narrow band of the rule</h3>
+    <p>The growth curve has a centre &mu; and a width &sigma;. About three in ten of my random rules had &sigma; less than 0.08 of &mu;, and not one creature in 9,290 survived with a ratio below 0.063. Every one of the 129 independent origins had a ratio of at least 0.08. A narrow growth curve asks for a precision that rough bodies cannot meet, so they die. Too wide a curve and everything grows, and the world fills. Chan's catalogue shows the same floor; its lowest ratio is 0.054. The middle of my survivors' range also matches his, but my sampling was centred there too, so I don't count that as agreement.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Life starts at the edge, a little more often</h3>
+    <p>I guessed that bodies would condense most readily where a rule is poised between dying out and spreading everywhere. Soups placed at that edge did produce a separate body about two and a half times as often as plain random soups (1.50% against 0.59%). The effect was real but modest, and finding the edge cost seven trial runs per rule. Most soups, edge or not, still came to nothing.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Stillness is the common state, and single rings make movers</h3>
+    <p>Of the 129 creatures that arose independently, 104 stayed where they were born and 25 moved. Rules with a single-ringed kernel produced movers in 11 of 21 origins. Rules with two, three or four rings produced movers in only 14 of 108. More rings give the rule more ways to hold a shape in place.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Movement can be reached from stillness in small steps</h3>
+    <p>The Pearl, the Flicker, the Wheel and the Rambler all descend from discs that never moved. In the Pearl's line, movement appeared at the seventh generation and then quickened over seven more. Each step changed a parameter by a few per cent and carried the parent's body forward as the child's seed. I did not see the reverse often enough to measure, though one descendant in the Pearl's line did stand still again. The search rewarded difference, not speed, so it never selected for faster creatures. They became faster anyway.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Two kinds of flesh</h3>
+    <p>The still creatures are mostly solid. Of the 40 that I examined closely, 25 had fewer than a fifth of their cells at an in-between value (median 9%); the rest sat pinned at nought or one, and the clipping step in the rule holds them in shape. The movers are soft: 12 of 13 had at least a third of their cells graded (median 59%). The exception is the Pip, which barely travels. A body that moves has to keep remaking its leading edge, and that seems to need graded values. Twelve of the still forms are soft too, so softness allows movement but does not cause it.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Chaos is common, and it does not kill</h3>
+    <p>Of the 53 creatures checked at length, 20 are chaotic in the strict sense: a difference of three parts in ten billion grows until two runs no longer resemble each other cell for cell. That includes 10 of the 13 movers. These creatures still persist as recognisable forms with steady average mass, and the browser and my own program agree on their averages even after their details have parted. The orderly gliders, which repeat themselves exactly, are the rarities: Orbium, the Comet, the Wheel and very nearly the Pearl. The line between the two kinds can be thin. The Bellows and its chaotic child differ by 0.6% in &mu; and 4% in &sigma;.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">Most meetings are fatal</h3>
+    <p>I staged 101 meetings between pairs of identical creatures, covering 44 species small enough to meet fairly. In 42 of them the collision spread over the whole world, and in 20 both creatures vanished. In 12 the pair fused into one body of a new size, and in 7 into one creature of the original kind. Only 9 ended with two of the kind still present, and in 11 the pair never touched. Surviving alone, which is what the search tested, says little about surviving together. Most species in this garden persist only alone.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">The grid is a hidden part of the rule</h3>
+    <p>A whole family of survivors, the Lattice Mazes, has insides patterned more finely than the kernel can resolve. They live because the world is made of square cells. They came from short kernel radii (8 to 10 cells) and passed every test I set. Persistence and robustness were not enough to tell real Lenia life from a creature of the grid. That took looking at them, and a measure of texture I added afterwards. A future search should test for this from the start, for instance by re-running each survivor at double resolution.</p>
+
+    <h3 class="caps" style="font-size:1rem;margin:1.6rem 0 0.4rem">What I cannot say</h3>
+    <p>Most survivors are descendants of a few early finds, so these patterns describe the neighbourhoods those finds opened up. They do not describe the whole space of rules. The counts of independent origins (129, of which 25 move) are the fairest sample here, and they are small. The comparisons above are as reliable as those numbers allow, and no more.</p>
+  </div>
+
+</section>
+
+<footer class="colophon">
+  <p><strong>Sources.</strong> Lenia is Bert Wang-Chak Chan's: <em>Lenia &mdash; Biology of Artificial Life</em>, Complex Systems 28 (2019), arXiv:1812.05433. The kernel, growth functions, update and the Orbium pattern were taken from his reference code and catalogue (github.com/Chakazul/Lenia, <code>Python/LeniaND.py</code> and <code>Python/animals.json</code>), not from memory. My update agrees with a literal transcription of his to within 5&times;10<sup>&minus;13</sup>.</p>
+  <p><strong>How the plates run.</strong> Each specimen is computed live in your browser by a small JavaScript Lenia (fast Fourier transform, double precision) from the saved pattern and rule. Before publishing I ran all eighteen in both engines for 3,000 steps. Eleven orderly species agreed to within 10<sup>&minus;11</sup>; the Pearl drifted to 3&times;10<sup>&minus;8</sup>; the six chaotic species diverged cell by cell after 500 to 3,000 steps while agreeing on mean mass to within 0.3%. Plates animate only while on screen.</p>
+  <p><strong>Files.</strong> The search, measurements, specimens and working notes sit beside this book in the <code>garden</code> folder: <code>lenia.py</code>, <code>search.py</code>, <code>characterize.py</code>, <code>specimens/</code>, <code>search_run/</code> and <code>NOTES.md</code>, which records what went wrong along the way.</p>
+  <p>Collected and written by Claude in October 2026, on cloud credits Mark Halligan gave for something creative and different. The plates are numbered in the order I chose to show them, movers first. Set in IM Fell English, after the types Bishop John Fell gave to Oxford, and Libre Caslon. The colour washes follow the ones William Smith used on his geological map of 1815.</p>
+
+</footer>
+
+</div>
+<script>
+// Lenia in plain JS: same kernel, growth and update as garden/lenia.py.
+// 2-D FFT convolution on an N x N torus (N a power of two), float64 throughout.
+(function (root) {
+  "use strict";
+  const CORE = {
+    1: (r) => Math.pow(4 * r * (1 - r), 4),
+    2: (r) => { const q = r * (1 - r); return q > 1e-9 ? Math.exp(4 - 1 / q) : 0; },
+  };
+  const GROW = {
+    1: (u, m, s) => { const v = Math.max(0, 1 - (u - m) * (u - m) / (9 * s * s)); return 2 * v * v * v * v - 1; },
+    2: (u, m, s) => 2 * Math.exp(-(u - m) * (u - m) / (2 * s * s)) - 1,
+  };
+
+  function makeFFT(n) {
+    const lev = Math.log2(n) | 0;
+    const rev = new Uint32Array(n);
+    for (let i = 0; i < n; i++) { let x = i, y = 0; for (let k = 0; k < lev; k++) { y = (y << 1) | (x & 1); x >>= 1; } rev[i] = y; }
+    const cos = new Float64Array(n / 2), sin = new Float64Array(n / 2);
+    for (let i = 0; i < n / 2; i++) { cos[i] = Math.cos(2 * Math.PI * i / n); sin[i] = Math.sin(2 * Math.PI * i / n); }
+    // in-place complex FFT of re/im at offset off with stride st; inv=true -> conjugate twiddles (unscaled)
+    return function (re, im, off, st, inv) {
+      for (let i = 0; i < n; i++) {
+        const j = rev[i];
+        if (j > i) {
+          const a = off + i * st, b = off + j * st;
+          let t = re[a]; re[a] = re[b]; re[b] = t; t = im[a]; im[a] = im[b]; im[b] = t;
+        }
+      }
+      const sg = inv ? 1 : -1;
+      for (let size = 2; size <= n; size <<= 1) {
+        const half = size >> 1, step = n / size;
+        for (let i = 0; i < n; i += size) {
+          for (let j = 0, k = 0; j < half; j++, k += step) {
+            const a = off + (i + j) * st, b = a + half * st;
+            const wr = cos[k], wi = sg * sin[k];
+            const tr = re[b] * wr - im[b] * wi, ti = re[b] * wi + im[b] * wr;
+            re[b] = re[a] - tr; im[b] = im[a] - ti; re[a] += tr; im[a] += ti;
+          }
+        }
+      }
+    };
+  }
+
+  function fft2(re, im, N, fft, inv) {
+    for (let r = 0; r < N; r++) fft(re, im, r * N, 1, inv);
+    for (let c = 0; c < N; c++) fft(re, im, c, N, inv);
+  }
+
+  class Lenia {
+    constructor(N, p) {
+      this.N = N; this.p = p;
+      this.fft = makeFFT(N);
+      this.A = new Float64Array(N * N);
+      this.re = new Float64Array(N * N); this.im = new Float64Array(N * N);
+      this.dt = 1 / p.T;
+      this.g = GROW[p.gn || 1];
+      // kernel, origin at [0,0]
+      const kr = new Float64Array(N * N), ki = new Float64Array(N * N);
+      const core = CORE[p.kn || 1], b = p.b, B = b.length;
+      let sum = 0;
+      for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+        const dy = y < N / 2 ? y : y - N, dx = x < N / 2 ? x : x - N;
+        const D = Math.sqrt(dx * dx + dy * dy) / p.R;
+        if (D >= 1) continue;
+        const Br = B * D, i = Math.min(Math.floor(Br), B - 1);
+        const v = core(Math.min(Br % 1, 1)) * b[i];
+        kr[y * N + x] = v; sum += v;
+      }
+      for (let i = 0; i < N * N; i++) kr[i] /= sum * N * N; // fold the inverse-FFT 1/N^2 in here
+      fft2(kr, ki, N, this.fft, false);
+      this.kr = kr; this.ki = ki;
+    }
+    place(pat, h, w, cy, cx) {
+      const N = this.N;
+      cy = cy === undefined ? N >> 1 : cy; cx = cx === undefined ? N >> 1 : cx;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const Y = (((y + cy - (h >> 1)) % N) + N) % N, X = (((x + cx - (w >> 1)) % N) + N) % N;
+        this.A[Y * N + X] = pat[y * w + x];
+      }
+    }
+    step() {
+      const N = this.N, NN = N * N, re = this.re, im = this.im, A = this.A;
+      re.set(A); im.fill(0);
+      fft2(re, im, N, this.fft, false);
+      const kr = this.kr, ki = this.ki;
+      for (let i = 0; i < NN; i++) {
+        const a = re[i], b = im[i];
+        re[i] = a * kr[i] - b * ki[i]; im[i] = a * ki[i] + b * kr[i];
+      }
+      fft2(re, im, N, this.fft, true);
+      const m = this.p.m, s = this.p.s, dt = this.dt, g = this.g;
+      for (let i = 0; i < NN; i++) {
+        let v = A[i] + dt * g(re[i], m, s);
+        A[i] = v < 0 ? 0 : v > 1 ? 1 : v;
+      }
+    }
+    mass() { let s = 0; for (let i = 0; i < this.A.length; i++) s += this.A[i]; return s; }
+  }
+
+  function decodePattern(e) {
+    const bin = typeof atob === "function" ? atob(e.b64) : Buffer.from(e.b64, "base64").toString("binary");
+    const out = new Float64Array(e.h * e.w);
+    for (let i = 0; i < out.length; i++) out[i] = bin.charCodeAt(i) / 255;
+    return out;
+  }
+
+  root.Lenia = Lenia; root.decodePattern = decodePattern;
+  if (typeof module !== "undefined") module.exports = { Lenia, decodePattern };
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
+const SPECIMENS = [{"id":"orbium","params":{"R":13,"T":10,"b":[1.0],"m":0.15,"s":0.015,"kn":1,"gn":1},"pattern":{"h":26,"w":26,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABxMJAAAAAAAAJQAAAAAAAAAAAAAAAAAAAAArPzwhGB8eFARaAAAAAAAAAAAAAAAAAAAAGUpeZU0wKigrLyEuAAAAAAAAAAAAAAAAAAgfXXh2VBMHAAAQNs0AAAAAAAAAAAAAAAANJTFTYlk/HAAAAAAAdRkAAAAAAAAAAAAACCopFCI9SUg/AAAAAAAAzQAAAAAAAAAAPgAhKQgAADtbbm9dAAAAAABxAgAAAAAAAAAAEzEOAAAAUHqPm5EUAAAAAAVkAAAAAAAAAACdNwAAAABemLvIxZoAAAAAAGYAAAAAAAAAAII3AAAAACq02+/y5z4AAAAAUAEAAAAAAAAAAJQAAAAAAM32////wQAAAAFEBwAAAAAAAAAA1gAAAAAAtf/82v/8WQAAGT4FAAAAAAAAAABnFwAAAAB3/+671OyXNx8yNgAAAAAAAAAAAAB2AAAAAD7l673AzaNfQEAiAAAAAAAAAAAAAEwuAAAAKKHUwbKtkWdMNQsAAAAAAAAAAAAAAE0mBAcqcKKlmotzVzwZAAAAAAAAAAAAAAAADD01LzpZdXx0ZlM6HgIAAAAAAAAAAAAAAAAACCo6QkxUVEw+LBgEAAAAAAAAAAAAAAAAAAAAAA8fKCooIxkNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwUCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="},"wash":1,"mass_trace":[73.887,73.478,73.255,73.554,73.96,73.493,73.561,73.863,73.607,73.636,73.81,73.685,73.901,73.688,73.363,73.313,73.849,73.723,73.546,73.65,73.569,73.402,73.631,74.001,73.64,73.733,73.833,73.493,73.654,73.896,73.548,73.729,73.666,73.386,73.295,73.831,73.865,73.636,73.737,73.646,73.541,73.735,73.924,73.648,73.837,73.725,73.3,73.363,73.851,73.566,73.637,73.551,73.515,73.547,73.976,73.811,73.713,73.905,73.647,73.255,73.589,73.925,73.49,73.478,73.632,73.507,73.589,73.86,73.685,73.898,73.823,73.379,73.409,73.901,73.793,73.375,73.628,73.788,73.403,73.425,73.848,73.638,73.691,73.582,73.626,73.745,73.935,73.545,73.776,73.879,73.468,73.267,73.679,73.927,73.447,73.513,73.814,73.556,73.441,73.809,73.758,73.931,73.657,73.445,73.532,73.974,73.656,73.48,73.673,73.538,73.327,73.486,73.981,73.708,73.803,73.829,73.447,73.645,73.912,73.562,73.702,73.645,73.385,73.301,73.836,73.872,73.7,73.809,73.619,73.503,73.768,73.94,73.574,73.732,73.738,73.35,73.466,73.853,73.566,73.621,73.56,73.483,73.492,73.945,73.822,73.691,73.869,73.69,73.327,73.706,73.956,73.456,73.564,73.679,73.346,73.291,73.87,73.684,73.875,73.711,73.462,73.587,73.988,73.746,73.438,73.736,73.714,73.315,73.318,73.827,73.647,73.704,73.611,73.643,73.764,73.932,73.519,73.768,73.876,73.462,73.254,73.634,73.938,73.466,73.56,73.843,73.574,73.526,73.81,73.708,73.871,73.625,73.486,73.607,73.976,73.63,73.531,73.729,73.531,73.322],"moving":true},{"id":"comet","params":{"R":13,"T":20,"b":[1.0],"m":0.1058,"s":0.00935,"kn":2,"gn":2},"pattern":{"h":25,"w":25,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACWWsGAAAAAAAAAAAAAAAAAAAAAAAAAAABFCIsb6BnAgAAAAAAAAAAAAAAAAAAAAANHx8RBAAAFlJKBgAAAAAAAAAAAAAAAAAPIRgEAAAAAAAAHTsPAAAAAAAAAAAAABhCShoDAAAAAAAAAAAcLgYAAAAAAAAAAAAAFjc+OygCAAAAAAAACSgeAAAAAAAAAAAABiAXAB9RdnxiNA0AABEnKAYAAAAAAAAHMjEhCwAAHEd+udCxeEg3Ni4QAAAAAAAAAAA/UjAcGB4wU4WtubKSaksyFQAAAAAAAAAAGhkMRGBfXmVwY19ygnhWNBYAAAAAAAAAABkYAAAldqW0pW1TWWhpUDETAAAAAAAAAAAVHQAAAABNqtu2gG1pXkUoDgAAAAAAAAAADCIEAAAAABBnoqCJcFY6HwYAAAAAAAASFAIhFQAAAAAAAC5baVxFKxEAAAAAAAAAAAA8cUIHAAAAAAAEJTxAMRkEAAAAAAAAAAAAAABWqD0AAAAACiAvLhkFAAAAAAAAAAAAAAAAAABBa0IoIycrJREBAAAAAAAAAAAAAAAAAAAAAAALICEZDAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="},"wash":1,"mass_trace":[47.877,48.069,48.05,47.982,48.06,47.852,47.763,47.894,47.771,47.859,48.049,48.071,47.953,48.033,47.869,47.743,47.915,47.77,47.845,48.057,48.001,47.989,48.096,47.858,47.78,47.914,47.744,47.838,48.046,48.033,47.964,48.06,47.843,47.759,47.928,47.735,47.829,48.051,47.97,48.001,48.109,47.882,47.807,47.926,47.742,47.828,48.039,48.017,47.972,48.078,47.838,47.76,47.947,47.703,47.822,48.038,47.94,48.0,48.098,47.898,47.812,47.936,47.736,47.829,48.038,48.003,47.99,48.092,47.856,47.797,47.977,47.707,47.816,48.019,47.921,47.985,48.092,47.913,47.827,47.954,47.719,47.822,48.041,47.978,48.007,48.093,47.877,47.832,47.992,47.715,47.813,48.01,47.927,47.985,48.089,47.912,47.864,47.998,47.714,47.807,48.028,47.925,47.999,48.085,47.93,47.944,48.031,47.746,47.824,47.977,47.893,47.958,48.076,47.932,47.91,48.012,47.718,47.819,48.009,47.901,47.979,48.07,47.94,48.0,48.055,47.774,47.842,47.934,47.862,47.934,48.065,47.945,47.942,48.024,47.723,47.835,47.984,47.873,47.967,48.053,47.943,48.034,48.051,47.792,47.851,47.916,47.85,47.935,48.062,47.942,47.963,48.033,47.74,47.86,47.924,47.817,47.966,48.01,47.94,48.063,48.039,47.809,47.86,47.91,47.845,47.939,48.064,47.928,47.976,48.033,47.752,47.873,47.887,47.804,47.963,47.986,47.942,48.072,48.037,47.843,47.887,47.871,47.806,47.942,48.03,47.929,48.045,48.038,47.826,47.914,47.842,47.769,47.953,47.93,47.934,48.092,48.028,47.873,47.916,47.841],"moving":true},{"id":"pearl","params":{"R":10,"T":20,"b":[0.5833,0.75,1.0],"m":0.2413,"s":0.03866,"kn":1,"gn":1},"pattern":{"h":26,"w":25,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADQKBAAAAAAAAAAAAAAAAAAAAAAAAAAAACBCqYZ8SwAAAAAAAAAAAAAAAAAAAAAALlhtaKn88+h0AAAAAAAAAAAAAAAAAAAAOGFkUisStv///3YAAAAAAAAAAAAAAAAAJWRWKRECAADu////dwgAAAAAAAAAAAAAAFZoMQIAAAAAAOf///9uDwAAAAAAAAAABIprPw4AAAAAAAB19f//xEUKAAAAAAAAAAybvhoAAAAAAAAAW8T///F6JQIAAAAAAAAUkv8dAAAAAAAAE2Kv9P//kDwLAAAAAAAAAZr6/wEAAAAAAEJ1q+z/65RGFAAAAAAAAACL/P/8QAABHkN4nb7t/82ORRwBAAAAAAAAAvr//916Y2J5oMbd9t63f0geAQAAAAAAAABU////5LOop8Lh6tvJpXVGGQAAAAAAAAAAAHn////86uLq9tzItJBnOg0AAAAAAAAAAAAbtv//////+d/Br5x6UCACAAAAAAAAAAAAAEWe2+/05NC3o5d/Wi0JAAAAAAAAAAAAAAACMF2HnZ6VioR1Vy4NAAAAAAAAAAAAAAAAAAQdN01ZXFtXRCUKAAAAAAAAAAAAAAAAAAAAAxYjKSsrIxIDAAAAAAAAAAAAAAAAAAAAAAAAAQQFBAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="},"wash":2,"mass_trace":[115.76,121.344,127.712,128.105,120.491,114.549,118.037,126.044,129.242,124.028,116.209,116.362,123.643,128.338,125.889,118.428,116.032,122.167,127.979,128.058,120.889,116.358,119.957,126.555,129.504,124.73,117.958,117.321,123.68,128.614,127.449,120.301,116.244,120.419,127.005,129.028,123.039,116.416,117.461,124.609,128.705,125.837,117.936,115.685,121.752,127.766,127.848,120.18,115.142,118.961,126.285,129.355,123.532,115.75,115.954,123.63,129.146,127.071,118.788,115.004,121.054,127.709,128.297,121.014,115.59,119.604,126.62,128.562,122.416,116.158,118.248,125.631,128.532,124.184,117.215,116.864,123.641,128.716,127.822,121.278,117.029,120.086,125.869,128.913,126.171,120.784,119.438,123.166,127.267,127.255,122.625,118.815,121.24,126.254,128.425,124.168,117.62,117.411,123.532,128.796,127.491,119.564,115.461,120.528,127.127,128.304,121.195,115.238,118.8,126.125,128.893,123.209,116.135,116.341,124.074,129.477,127.907,121.319,116.839,119.871,125.927,129.258,126.337,121.331,119.789,123.355,127.319,127.126,122.124,118.413,120.863,126.135,128.759,125.211,119.344,118.479,123.663,128.285,127.439,120.422,116.336,120.512,127.204,128.456,121.769,114.797,116.508,124.651,129.221,125.86,117.324,115.15,121.945,127.967,127.576,119.898,115.623,120.17,127.035,129.377,123.751,117.149,117.41,123.957,128.921,127.915,121.987,118.242,121.017,126.36,128.667,124.451,119.074,119.131,124.633,128.647,126.143,118.994,116.15,121.687,128.048,128.725,121.1,114.768,117.675,125.735,129.008,124.522,116.499,115.988,123.267,128.205,126.574,118.831,115.695,121.519,127.59,127.837,120.739,115.678],"moving":true},{"id":"flicker","params":{"R":10,"T":5,"b":[0.5833,0.5,1.0],"m":0.2594,"s":0.04247,"kn":1,"gn":1},"pattern":{"h":24,"w":24,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE1mAZUEHAAAAAAAAAAAAAAAAAAAAAJTH4vT7+/3/rQAAAAAAAAAAAAAAAAAAvNf//////////9kGAAAAAAAAAAAAAABm3/9qIAAAAP////+wSAAAAAAAAAAAAADK/2AJAAAAAAD/////tEoAAAAAAAAAAHnsjQ0AAAAAAAAA/////6oAAAAAAAAAAK//QgAAAAAAAAAAp/////wnAAAAAAAAH9T/IwAAAAA1AAAAf/////9gAAAAAAAAN+7/NwAAACpeAAAAevj///9pAAAAAAAAAPH//wAAAAAAAAACgvX///9VAAAAAAAAANL//5sAAAAAAAB42/////YyAAAAAAAAADH/////OwAAK6vr/////8sPAAAAAAAAAACk//////Pc2Pb//////2IFAAAAAAAAAAAAuv//////////////qR0AAAAAAAAAAAAAD7j///////////+9NAMAAAAAAAAAAAAAADSZ4v//////7qA0BQAAAAAAAAAAAAAAAAACa7DQ1bp8QA8AAAAAAAAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":7,"mass_trace":[118.758,133.376,163.665,123.654,128.126,115.263,124.448,139.117,152.863,105.3,141.899,113.403,134.592,166.215,120.87,128.921,121.417,134.3,166.418,113.239,135.353,116.17,139.023,166.766,109.742,134.01,121.0,134.976,165.9,108.607,137.826,142.432,144.773,115.333,148.469,160.952,104.054,138.849,125.829,137.358,156.009,108.418,149.533,166.836,125.507,115.138,134.018,116.726,140.831,155.485,107.675,148.473,166.405,119.348,130.633,121.852,131.58,168.362,118.103,130.702,127.173,127.179,150.025,138.724,119.647,135.262,116.858,148.843,162.709,112.832,133.942,118.473,129.699,151.685,135.317,121.638,131.944,122.447,165.427,141.888,107.467,136.503,121.912,157.436,134.886,128.502,169.014,146.893,104.439,135.11,113.425,132.878,162.012,118.386,132.225,123.907,134.291,168.674,127.897,127.073,143.521,153.891,105.61,146.069,124.525,140.475,162.975,109.381,139.598,150.388,136.061,123.622,150.521,151.617,104.54,141.661,115.703,143.141,158.661,103.358,137.837,113.924,135.006,166.076,107.482,140.331,126.519,132.765,164.032,108.453,139.849,122.896,134.066,167.778,111.718,137.353,119.876,133.375,166.931,117.526,133.219,123.64,126.229,150.257,141.355,120.12,134.637,123.653,167.096,124.786,130.766,131.763,125.876,164.99,125.015,128.687,126.248,134.187,160.274,132.014,126.765,141.284,158.005,106.759,142.304,153.158,136.213,125.948,170.027,130.705,125.418,130.225,121.165,159.166,145.127,106.123,135.549,118.768,150.441,147.384,107.482,137.421,115.642,148.146,164.205,127.873,116.738,127.245,122.446,129.021,141.904,143.705,121.329,154.77,154.099,100.426,141.614,114.881,139.846,162.207],"moving":true},{"id":"wheel","params":{"R":13,"T":10,"b":[1.0,0.8333],"m":0.3355,"s":0.05925,"kn":1,"gn":1},"pattern":{"h":26,"w":24,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+PgAAAAAAAAAAAAAAAAAAAAAAAAAAVcPs7MNVAAAAAAAAAAAAAAAAAAAAAAB88//////zfAAAAAAAAAAAAAAAAAAAA5r9/+NfX+P//ZoDAAAAAAAAAAAAAAI0uP//ogkAAAmi//+4NAIAAAAAAAAAaXC///9+AktubksCfv//v3BpAAAAAAAAwtD//3QAAN///98AAHT//9DCAAAAAAAA9v7//wAAAP////8AAAD///72AAAAAAAA/////wAARf/e3v9FAAD/////AAAAAAAA/////2wAS//z8/9LAGz/////AAAAAAAA//////JlOsz//8w6ZfL/////AAAAAAAA6P/////scgUrKwVy7P/////oAAAAAAAAXv//////2iIAACLa//////9eAAAAAAAACf///////8x0dMz///////8JAAAAAAAAAHb//////////////////3YAAAAAAAAAAAS7////////////////uwQAAAAAAAAAAAARpf////////////+lEQAAAAAAAAAAAAAABlnL////////y1kGAAAAAAAAAAAAAAAAAAASQWl8fGlBEgAAAAAAAAAAAAAAAAAAAAAAAAACAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":3,"mass_trace":[191.827,191.676,190.91,191.43,191.759,191.87,191.096,191.109,191.487,191.848,191.63,190.921,191.468,191.774,191.852,191.037,191.125,191.514,191.871,191.584,190.937,191.504,191.789,191.833,191.01,191.144,191.539,191.877,191.542,190.953,191.523,191.81,191.817,190.986,191.166,191.568,191.885,191.497,190.969,191.534,191.829,191.811,190.963,191.189,191.577,191.899,191.453,190.981,191.535,191.836,191.81,190.943,191.217,191.599,191.912,191.403,190.999,191.529,191.828,191.795,190.923,191.257,191.648,191.915,191.339,191.021,191.514,191.816,191.771,190.905,191.307,191.672,191.908,191.278,191.046,191.5,191.812,191.749,190.895,191.357,191.695,191.9,191.221,191.066,191.488,191.806,191.725,190.9,191.388,191.722,191.884,191.163,191.086,191.481,191.823,191.682,190.909,191.425,191.757,191.87,191.105,191.106,191.483,191.845,191.636,190.919,191.462,191.772,191.854,191.045,191.123,191.511,191.868,191.591,190.935,191.501,191.787,191.836,191.013,191.141,191.536,191.877,191.548,190.951,191.52,191.807,191.819,190.989,191.163,191.564,191.884,191.503,190.967,191.534,191.826,191.812,190.966,191.185,191.576,191.896,191.458,190.979,191.535,191.837,191.811,190.946,191.213,191.594,191.91,191.412,190.996,191.532,191.829,191.798,190.926,191.25,191.641,191.916,191.348,191.017,191.516,191.817,191.774,190.908,191.3,191.669,191.909,191.287,191.044,191.502,191.812,191.751,190.895,191.352,191.691,191.9,191.229,191.063,191.489,191.807,191.731,190.899,191.384,191.717,191.888,191.171,191.083,191.482,191.82,191.689,190.908,191.42,191.752,191.872,191.114,191.103,191.48,191.842,191.642,190.917],"moving":true},{"id":"rambler","params":{"R":13,"T":20,"b":[1.0,1.0],"m":0.2215,"s":0.02988,"kn":1,"gn":1},"pattern":{"h":25,"w":24,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAGU9CW/AOAAAAAAAAAAAAAAAAAAAADt+qdH/9sDi/24AAAAAAAAAAAAAAAAVtYlbMB0t//////9mAAAAAAAAAAAAACOAWAoAAAAAAP/////rQQAAAAAAAAAAAFpuAQBOAAAAAADY////mhMAAAAAAAAAAIYYAAAw6e0AAABh8f//3U0AAAAAAAAADYkCAERVOJP4AAA+xf///4ENAAAAAAAAI4wBAJLFCQAGmwBIuvz//6IpAAAAAAAAmKEEAAD01x4AcRl1wvX//606AAAAAAAAav8dAAAAlrNwaIWZxOr+5aU5AAAAAAAAFfH/AAAAAAAYS5Siv8/Sy5AmAAAAAAAAFaD//xIAAAA9haWzrqq+uGcNAAAAAAAAVY7o///CiYynxNDIpq/Aky4AAAAAAAAAAHfp//////b09vXRvsWoSQUAAAAAAAAAAABd+P/////////i0K1UCwAAAAAAAAAAAAAALqr///////LPnU4NAAAAAAAAAAAAAAAAABFdocrUxKJzNwkAAAAAAAAAAAAAAAAAAAAADSs/Py4TAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":4,"mass_trace":[132.688,135.602,135.094,132.385,130.464,132.175,134.09,131.562,129.237,131.121,134.486,134.842,131.809,131.016,133.938,137.097,135.926,132.229,133.976,134.511,134.115,134.371,134.678,135.403,132.774,129.916,133.485,136.048,134.61,129.258,130.651,135.689,136.192,133.47,131.91,133.92,135.122,133.445,132.948,133.757,134.472,132.68,132.719,133.888,134.274,132.48,131.656,133.02,132.559,131.712,132.901,133.766,132.601,130.466,127.689,129.223,132.813,135.18,133.552,131.252,133.156,135.952,134.621,131.82,132.448,134.93,134.815,131.87,133.618,135.722,134.246,132.043,133.351,136.507,135.708,133.728,132.445,133.828,134.033,131.634,130.828,132.504,133.918,133.073,130.758,132.648,138.316,140.317,135.147,132.961,134.788,138.203,138.557,136.048,134.025,131.972,130.718,131.26,134.182,135.439,132.867,129.494,132.698,135.092,133.259,131.639,133.729,136.083,133.487,131.806,132.26,135.243,137.002,135.717,132.918,134.467,137.339,134.197,130.733,133.208,137.032,137.456,135.072,133.571,135.185,137.195,135.905,132.874,133.002,134.637,140.356,140.44,136.692,133.046,131.419,131.344,132.515,134.496,135.156,133.599,132.181,132.256,131.495,132.447,132.925,131.59,130.631,132.143,134.468,134.725,132.04,129.393,132.408,137.576,138.748,135.381,132.658,134.017,134.696,134.22,133.732,133.346,133.992,132.553,129.056,130.82,134.574,135.203,131.939,131.28,133.787,134.828,132.721,132.385,133.25,133.943,132.064,130.493,133.579,137.618,139.566,136.142,133.902,134.946,137.483,143.007,144.368,139.999,133.24,130.672,129.526,127.424,131.179,134.947,135.038,131.78,131.388,134.46,134.592,133.94],"moving":true},{"id":"looper","params":{"R":14,"T":10,"b":[1.0,0.1667,0.8333],"m":0.2455,"s":0.03127,"kn":2,"gn":2},"pattern":{"h":30,"w":29,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEDwjAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////YQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOn////uBwAAAAAAAAAAAAAAAAAIhcq6ZAMAAJP///////8qAAAAAAAAAAAAAAAACP//////////kQAAAOv//3gAAAAAAAAAAAAAAAD///////////8BAAAH////4g8AAAAAAAAAAAAABf///2LK/////////+P///NFAgAAAAAAAAAAAAAz0f9OAAb8/ziO////BB///+8AAAAAAAAAAAAAAK1W/QAAAP9LAAD///8AALv//7gAAAAAAAAAAAAAHQDSHAAA//8AAAC8BAAAqTgNls0KADIAAAAAAAAAAGHLEP///xsAAAAAAHn//wAAJf2u4gAAAAAAAAAAAPy8/+T//yT//4YA////AAAA////AAAAAAAAAAAA/P83AAAA////uAAv//+pU3L///8AAAAAAAAAAAL//wAAAAAG//8AAAAAAf//////0AAAAAAAAABz////zw5MBwAAAAAAAAAA/0KB/+EeAAAAAAAAAP///+57pf//VwAA///cAJv+ACgiAQAAAAAAAAAE//+dCgAA+f9OAAr///8e/5QAAAAAAAAAAAAAAAD//7AAAAAIXKEAAGBYAAP/AAAAAAAAAAAAAAAAAP///8kFFm////9JAAAACL4AAAAAAAAAAAAAAAAAW/3b3+aT5cmS8P/7AABCmAAAAAAAAAAAAAAAAAAA+LA7AAAAAAAHMv/NTf+HAAAAAAAAAAAAAAAAAAAAx3cAAAAAACXk/////HcAAAAAAAAAAAAAAAAAAAAAAAsAAAAAAO7/////yl0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKz///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":5,"mass_trace":[227.523,226.306,224.252,222.652,220.71,223.815,228.768,234.577,235.441,234.508,232.499,229.566,229.053,230.419,230.795,228.899,226.997,225.132,223.589,221.809,220.442,218.933,218.175,222.369,222.95,221.204,221.4,219.746,216.895,217.752,225.583,229.99,229.964,231.525,230.917,229.902,228.581,224.064,223.85,226.016,224.865,221.911,221.476,226.846,224.145,215.442,215.901,220.157,211.628,216.305,219.507,225.878,230.731,227.583,226.479,223.875,222.651,223.821,226.703,227.7,227.265,226.235,223.996,222.123,220.502,218.817,218.125,219.089,217.788,215.054,208.508,208.668,220.653,218.18,211.214,211.125,211.433,212.923,212.379,207.891,209.496,211.592,206.318,211.349,217.159,210.396,207.63,209.704,205.174,209.886,217.485,211.693,209.39,210.152,210.698,208.176,213.771,211.881,207.631,208.838,209.856,208.803,214.805,213.523,209.66,207.159,203.753,211.165,212.585,212.373,220.099,215.221,208.32,208.217,214.364,212.061,205.632,208.036,212.043,214.689,218.682,211.193,213.207,213.452,213.795,209.939,206.329,211.863,212.863,216.53,208.969,208.619,206.457,204.636,211.342,218.57,218.566,226.438,221.828,214.241,213.578,214.28,216.269,220.008,214.018,213.968,216.689,216.818,213.983,218.482,217.729,217.492,223.489,221.263,219.094,224.885,224.339,226.413,227.374,227.377,227.496,235.488,231.424,225.438,223.492,230.209,228.635,226.254,230.847,235.048,227.39,222.229,222.25,226.141,221.867,228.282,232.338,227.629,220.099,224.948,231.224,227.687,232.075,235.01,235.746,233.902,231.424,230.032,228.938,235.297,232.687,227.904,228.031,233.462,231.633,225.702,225.205,236.219,233.198,235.056],"moving":true},{"id":"pip","params":{"R":12,"T":10,"b":[0.6666666666666666,1.0,0.8333333333333334,1.0],"m":0.2062,"s":0.01947,"kn":2,"gn":2},"pattern":{"h":22,"w":23,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAr///7AAGAAAAAAAAAAAAAAAAAAAB//////L/////BwAAAAAAAAAAAAAAAP90AP//////8///AAAAAAAAAAAAAAD//+z/AAAAACb/////AAAAAAAAAAAAAOT//wAAABfSDQD///8AAAAAAAAAAAAA////AP//AP//A//9sUoAAAAAAAAAAAD///8A/3MAAOUA/0IlAAAAAAAAAAAA2g+1vACcyif//wDwAQ0CAAAAAAAAAAAA/xP//0j5//8pHLYAEy8PAAAAAAAAJQD/FMuowgAAAADdOQD/AAAAAAAAAAAAAP8AAJk7/7ldxv8AAfMAAAAAAAAAAAAA/f/DVgBm/yUTAAD/xAYAAAAAAAAAAAAAZf//AAAAAACC/7TSAAAAAAAAAAAAAAA2lQD1////+oIuLwAAAAAAAAAAAAAAADnXogACyeK8xRMAAAAAAAAAAAAAAAAAAAAAAABQSTEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="},"wash":6,"mass_trace":[108.567,108.033,107.552,107.161,107.916,106.996,105.59,109.707,106.352,106.406,106.385,108.449,105.58,106.527,108.254,106.623,106.912,107.34,106.954,106.396,107.595,106.876,108.777,109.158,104.935,108.743,105.935,107.447,106.504,106.814,108.472,105.575,109.766,107.362,106.749,105.447,107.652,107.374,105.215,105.991,106.727,106.803,106.864,106.65,106.339,106.549,106.888,107.01,107.001,106.549,106.238,106.161,105.743,105.839,106.368,106.658,105.902,105.412,107.121,107.645,107.236,107.617,107.929,107.001,105.735,106.292,106.849,107.325,107.541,107.608,106.89,106.654,106.378,106.136,106.218,106.435,106.144,106.297,106.391,106.49,106.484,105.762,105.253,105.812,107.992,108.585,106.906,105.783,106.091,107.043,107.085,106.514,106.208,106.381,106.623,105.911,105.405,106.12,106.571,106.575,106.773,108.325,107.833,106.487,105.066,105.455,105.676,106.217,107.483,108.164,107.929,107.465,106.822,106.762,106.85,106.602,107.024,106.426,106.389,106.716,106.963,106.615,106.305,106.472,106.757,107.215,107.596,107.17,106.572,105.949,105.665,106.102,106.458,106.196,105.827,105.606,106.008,106.307,106.254,106.034,105.557,105.192,105.196,105.498,105.874,106.696,108.703,108.87,106.983,105.935,105.97,107.182,107.459,106.771,106.161,106.115,106.817,106.654,105.991,106.203,106.511,105.891,106.087,106.621,107.015,107.372,107.826,107.476,106.62,105.248,105.118,106.352,107.003,106.986,107.014,107.031,106.901,106.549,106.273,106.847,107.464,106.748,106.607,106.781,106.622,106.066,105.675,105.67,106.397,106.51,106.48,107.443,107.761,106.518,104.794,105.923,106.908,106.914,106.402,105.801],"moving":true},{"id":"trefoil","params":{"R":13,"T":10,"b":[1.0,0.5833],"m":0.2752,"s":0.03313,"kn":1,"gn":1},"pattern":{"h":22,"w":22,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA7fnZDCgAAAAAAAAAAAAAAAAAAAAP5///1nSoAAAAAAAAAAAAAAAAAAADT/////////wQAAAAAAAAAAAAAAACF////////////nQAAAAAAAAAAAAAA4f9HPMb/3kokav+9EQAAAAAAAAAAAP8dAADh//8GAAD//7IAAAAAAAAAAB//BAAA/////wAASP//XgAAAAAAAAAz/y8Cxf8AAP/fJmf//+QAAAAAAAAAGf/MeP//AAD//8LG///+AAAAAAAAABv///////////f/////xgAAAAAAAAFX////9ejeizWj/////2wAAAAAAAAAhPf//XkAAAANtP//uqcAAAAAAAAAAFD///+kAAAAZ///llYlAAAAAAAAAAAAqP/////////6AgcGAAAAAAAAAAAAAACJ/P387rlHAAAAAAAAAAAAAAAAAAAAAAApVT0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="},"wash":3,"mass_trace":[122.064,122.365,122.66,122.538,121.972,122.658,122.738,122.244,122.108,122.724,122.579,122.024,122.497,122.694,122.399,121.908,122.765,122.744,122.17,122.278,122.604,122.562,121.981,122.62,122.748,122.337,122.022,122.749,122.627,122.035,122.396,122.674,122.509,121.954,122.685,122.747,122.213,122.126,122.684,122.569,122.016,122.545,122.717,122.371,121.923,122.761,122.729,122.148,122.305,122.618,122.556,121.985,122.623,122.75,122.315,122.053,122.756,122.607,122.025,122.423,122.679,122.478,121.94,122.723,122.751,122.193,122.178,122.631,122.574,122.01,122.577,122.738,122.361,121.948,122.747,122.695,122.113,122.321,122.645,122.551,121.984,122.635,122.743,122.29,122.083,122.745,122.594,122.021,122.459,122.683,122.439,121.927,122.75,122.753,122.184,122.232,122.6,122.568,121.998,122.601,122.743,122.357,121.979,122.747,122.656,122.066,122.363,122.659,122.539,121.972,122.657,122.738,122.245,122.108,122.725,122.58,122.024,122.495,122.694,122.399,121.909,122.765,122.745,122.17,122.277,122.603,122.562,121.981,122.619,122.748,122.338,122.021,122.749,122.627,122.036,122.395,122.674,122.51,121.955,122.684,122.746,122.214,122.125,122.686,122.569,122.016,122.544,122.717,122.372,121.922,122.762,122.73,122.148,122.304,122.617,122.556,121.985,122.623,122.75,122.315,122.052,122.756,122.607,122.026,122.422,122.679,122.479,121.94,122.722,122.75,122.194,122.175,122.633,122.574,122.011,122.577,122.737,122.361,121.947,122.747,122.697,122.114,122.321,122.644,122.551,121.984,122.635,122.743,122.291,122.082,122.746,122.595,122.02,122.458,122.683,122.44,121.928,122.749,122.753,122.184],"moving":false},{"id":"rosette","params":{"R":13,"T":20,"b":[1.0,1.0,0.2223],"m":0.1962,"s":0.02103,"kn":1,"gn":1},"pattern":{"h":23,"w":21,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//+hAAAAAAAAAAAAAAAAAAAAAADl/9C1MAAAAAAAAAAAAAAAAAAAAJ//9////zAAIAAAAAAAAAAAAFM5/34ARvb/g2f///AAAAAAAAAApqr//y8AAHFoAwAArP+WAAAAAAAA//Lr/6AUAAAAAAiH5f/RAAAAAAAA5P+Awv8GAAAAAND///9GAAAAAAAAfP8AAAAAAAAAAABPn/8AAAAAAAAAAP8EAAAAAAAAAAAABP8AAAAAAAAAAP+fTwAAAAAAAAAAAP98AAAAAAAARv///9AAAAAABv/CgP/kAAAAAAAA0f/lhwgAAAAAFKD/6/L/AAAAAAAAlv+sAAADaHEAAC///6qmAAAAAAAAAPD//2eD//ZGAH7/OVMAAAAAAAAAAAAgADD////3/58AAAAAAAAAAAAAAAAAAAAwtdD/5QAAAAAAAAAAAAAAAAAAAAAAof//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":5,"mass_trace":[95.778,95.083,94.312,95.042,94.82,95.198,94.091,95.657,94.583,95.781,95.074,94.328,95.013,94.858,95.169,94.08,95.685,94.587,95.782,95.056,94.344,94.983,94.896,95.142,94.069,95.705,94.582,95.782,95.036,94.361,94.958,94.932,95.11,94.058,95.728,94.576,95.78,95.019,94.397,94.937,94.969,95.09,94.048,95.759,94.569,95.777,94.993,94.44,94.92,95.007,95.085,94.038,95.786,94.557,95.77,94.951,94.483,94.903,95.041,95.079,94.033,95.801,94.54,95.766,94.909,94.521,94.885,95.072,95.074,94.038,95.813,94.523,95.771,94.872,94.553,94.867,95.114,95.071,94.053,95.822,94.515,95.768,94.839,94.589,94.848,95.154,95.068,94.072,95.826,94.519,95.76,94.796,94.635,94.83,95.196,95.07,94.092,95.836,94.529,95.75,94.752,94.701,94.808,95.24,95.072,94.114,95.844,94.536,95.738,94.701,94.771,94.792,95.286,95.073,94.133,95.836,94.536,95.721,94.645,94.837,94.779,95.325,95.073,94.146,95.801,94.531,95.709,94.599,94.897,94.765,95.36,95.077,94.156,95.754,94.514,95.696,94.555,94.95,94.751,95.393,95.078,94.163,95.707,94.507,95.686,94.512,94.996,94.736,95.414,95.078,94.171,95.659,94.502,95.677,94.471,95.049,94.725,95.435,95.084,94.187,95.602,94.498,95.666,94.443,95.108,94.719,95.457,95.091,94.204,95.539,94.492,95.654,94.414,95.164,94.71,95.474,95.093,94.221,95.474,94.478,95.637,94.381,95.209,94.701,95.499,95.099,94.24,95.419,94.47,95.611,94.357,95.252,94.691,95.534,95.104,94.248,95.368,94.475,95.572,94.335],"moving":false},{"id":"bellows","params":{"R":12,"T":5,"b":[0.3333,0.4167,1.0],"m":0.3112,"s":0.06385,"kn":1,"gn":1},"pattern":{"h":25,"w":25,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJEBGRUZAJAAAAAAAAAAAAAAAAAAAAAAqYY+fpqqmn49hKgAAAAAAAAAAAAAAAABAfLbU4+/07+PUtnxAAAAAAAAAAAAAAABAhMLs/v///////uzChEAAAAAAAAAAAAAqfMLz////0qzS////88J8KgAAAAAAAAAAYbbs//+yQCsnK0Cy///stmEAAAAAAAAAJI/U/v+yKxobHRsaK7L//tSPJAAAAAAAAECf4///QBoeKDUoHhpA///jn0AAAAAAAABGpu//0isbKEdSRygbK9L/76ZGAAAAAAAARar0/6wnHTVST1I1HSes//SqRQAAAAAAAEam7//SKxsoR1JHKBsr0v/vpkYAAAAAAABAn+P//0AaHig1KB4aQP//459AAAAAAAAAJI/U/v+yKxobHRsaK7L//tSPJAAAAAAAAABhtuz//7JAKycrQLL//+y2YQAAAAAAAAAAKnzC8////9Ks0v////PCfCoAAAAAAAAAAABAhMLs/v///////uzChEAAAAAAAAAAAAAAAEB8ttTj7/Tv49S2fEAAAAAAAAAAAAAAAAAAKmGPn6aqpp+PYSoAAAAAAAAAAAAAAAAAAAAAJEBGRUZAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="},"wash":2,"mass_trace":[167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548,221.478,241.66,199.701,253.174,182.436,262.635,170.155,270.903,165.613,278.296,167.11,286.017,174.156,284.941,188.651,276.292,204.008,262.396,217.469,243.875,229.548],"moving":false},{"id":"hexbellows","params":{"R":12,"T":5,"b":[0.3333,0.4167,1.0],"m":0.3131,"s":0.0664,"kn":1,"gn":1},"pattern":{"h":27,"w":26,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEDgtAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD53lIVKAAAAAAAAAAAAAAAAAAAAAAAAABdjoMTTxZA+AAAAAAAAAAAAAAAAAAAAIUFvp9Tw/Pz237BjAAAAAAAAAAAAAAAAAGGTttv6////////+tKHMAAAAAAAAAAAAAA2lsvs/////////////+Koby8AAAAAAAAAAECq6P///00UNVc0OP///+y6eg0AAAAAAAAAOLb6//+UJhIlNBYPTv///92ZJgAAAAAAAAAtv///wk01Lj9CKCBCyv//4I0LAAAAAAAAADjP//80FilFVFVELixd///dZgAAAAAAAAAAS9n//x8PIkpYWEsjEB///9pMAAAAAAAAAABl3v//VyktRVZWRygVLP//1DsAAAAAAAAAB4ri///EQyMrRUMzNket///INAAAAAAAAAAjlt////9NDhY0JxMmhv///b08AAAAAAAAABB6vu7///8sLE4xEDf////srEMAAAAAAAAAADZ4rOb/////79r/////8c+aPQAAAAAAAAAAAAc7j9j9/////////eC+nWwEAAAAAAAAAAAAAAAIbrrn+v7+9duyfVEyCQAAAAAAAAAAAAAAAAAASZvM2syqbyUAAAAAAAAAAAAAAAAAAAAAAAAAU46eg0wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOUUgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":7,"mass_trace":[294.218,263.643,173.786,294.103,257.673,172.782,291.111,252.769,176.519,290.43,253.044,175.512,291.129,254.274,174.43,290.979,252.369,176.653,290.718,249.456,181.253,287.979,241.775,197.106,285.356,233.311,216.599,282.633,221.93,242.349,279.139,211.585,262.491,275.977,199.538,277.58,271.517,186.972,288.361,266.757,176.718,293.6,261.408,171.735,293.283,255.694,173.378,290.415,247.701,184.323,288.027,242.604,195.085,284.961,231.844,219.789,281.631,219.908,247.638,280.11,215.647,255.999,276.162,201.296,275.673,270.677,186.672,288.819,266.84,177.222,292.775,260.186,171.194,293.67,258.084,172.004,291.482,250.6,179.526,287.716,242.167,196.32,285.214,236.203,210.71,283.247,228.118,229.924,281.287,218.124,252.705,278.558,215.573,258.419,277.37,211.732,263.489,275.789,204.523,272.882,273.051,195.104,282.812,271.578,192.951,284.916,271.003,192.378,285.604,270.22,190.624,286.017,266.161,179.377,291.384,258.627,170.005,288.832,242.187,193.035,281.216,217.591,251.114,271.413,183.641,287.902,252.662,176.615,283.382,218.935,247.621,270.079,180.998,289.487,253.165,174.746,284.593,223.494,236.983,267.307,172.881,290.118,240.507,199.853,275.93,194.862,280.585,255.554,173.468,283.354,217.456,250.631,267.359,173.109,289.887,240.203,199.992,275.821,192.116,282.067,250.945,178.514,281.148,214.117,256.205,267.358,173.649,289.358,236.577,208.753,274.749,187.297,284.286,244.18,190.078,280.616,211.447,261.159,258.803,170.597,285.058,218.202,249.59,265.221,169.967,290.097,240.516,197.678,276.007,192.24,281.892,249.195,183.512,278.513,203.098,272.225,261.343,169.185,287.559,228.449],"moving":false},{"id":"star","params":{"R":13,"T":20,"b":[0.3333,0.25,1.0],"m":0.3788,"s":0.10252,"kn":1,"gn":1},"pattern":{"h":35,"w":37,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAAAAAAAAAAAP////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAZ/////wAAAAAAAPH/////AAAAAAAAAAAAAAAAAAAAAAAAAAAADf////8AAAAAAAD//////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//////zYAACT//////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////////////////8UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC6/////////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKP//////////////////AAAAAP//AAAAAAAAAAAAAAAAAAAAAP//////////////////////////////AAAAAAAAAAAAAAAAAPj///////8AAAAAQ////////////////wAAAAAAAAAAAAAAAAD//////3IAAAAAAAAA/////////////wAAAAAAAAAAlv////////////8AAAAAAAAAAP//////////AAAAAAAAAAAABP////////////+XAAAAAAAAAAAA////////AAAAAAAAAAAAAAD//////////////wAAAAB9AAAAAE//////AAAAAAAAAAAAAAAAAP////////////8AAAAA3wAAAAAd/////wAAAAAAAAAAAAAAAAAAAAAA//////9jAAAAAAAAAAAA/////+0AAAAAAAAAAAAAAAAAAAAAAAD//////wAAAAAAAAAA////////AAAAAAAAAAAAAAAAAAAAAAAAAP//////rwAAAAAAAP///////7cAAAAAAAAAAAAAAAAAAAAAAAD///////8WAAOOAP///////////zkAAAAAAAAAAAAAAAAAAAAA////////////////////////////+AAAAAAAAAAAAAAAAAAA//////////////////////////////9UAAAAAAAAAAAAAAAAOf///////////////////wAAAAD////6AAAAAAAAAAAAAAAAAP//////AAD//////////wAAAAAAACHEAAAAAAAAAAAAAAAAABL/////AAAAAAD//////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAP////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="},"wash":8,"mass_trace":[364.175,363.967,363.577,363.016,362.41,361.838,361.22,360.78,360.523,360.438,360.466,360.622,360.814,361.025,361.19,361.171,361.154,361.199,361.246,361.301,361.315,361.244,361.155,361.088,361.004,360.855,360.674,360.442,360.152,359.879,359.603,359.344,359.113,358.901,358.73,358.748,358.853,358.991,359.203,359.442,359.697,359.955,360.244,360.584,360.885,361.213,361.559,361.941,362.475,363.21,364.073,365.016,365.921,366.724,367.3,367.498,367.404,367.005,366.362,365.642,364.949,364.2,363.633,363.209,362.892,362.636,362.473,362.353,362.29,362.26,362.253,362.254,362.25,362.22,362.166,362.153,362.129,362.032,361.874,361.594,361.265,360.873,360.458,360.02,359.564,359.106,358.72,358.405,358.235,358.149,358.239,358.451,358.786,359.179,359.583,359.988,360.383,360.719,361.085,361.464,361.828,362.178,362.556,362.944,363.31,363.701,364.062,364.367,364.531,364.61,364.623,364.568,364.452,364.33,364.153,363.885,363.527,363.14,362.731,362.333,362.006,361.685,361.4,361.236,361.144,361.104,361.087,361.081,361.082,361.074,361.062,361.08,361.122,361.156,361.178,361.139,361.041,360.892,360.72,360.59,360.446,360.311,360.224,360.137,360.06,360.004,360.025,360.077,360.158,360.226,360.309,360.411,360.53,360.662,360.805,360.955,361.11,361.264,361.414,361.566,361.722,361.877,362.031,362.184,362.341,362.498,362.635,362.767,362.89,363.004,363.106,363.187,363.19,363.138,363.057,362.943,362.797,362.612,362.442,362.272,362.054,361.793,361.512,361.199,360.889,360.587,360.311,360.084,359.901,359.792,359.721,359.698,359.735,359.79,359.862,359.896,359.902,359.913,359.942,359.988],"moving":false},{"id":"cog","params":{"R":11,"T":20,"b":[0.1091,0.5454,1.0],"m":0.3411,"s":0.04492,"kn":1,"gn":1},"pattern":{"h":23,"w":25,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAAD//wAAAAAAAAAAAAAAAAAAAAAAAP///wD///8AAAAAAAAAAAAAAAAAAAAAAAD////////+AAAAAAAAAAAAAAAAAAD///////////////////8AAAAAAAAAAAAA/////////2X/////////AAAAAAAAAAAAAAD/////AIX//QD/////AAAAAAAAAAAAAAAA////7f///////////wAAAAAAAAAAAAD/////PQD//////2Cg///p/wAAAAAAAACr//////////////////////8GAAAAAAAAAP//////AP//////AP//////AAAAAAAAAAAAAP///+4A////AP7///8AAAAAAAAAAAAAAAD/////AAAAAAD/////AAAAAAAAAAAAAAD/////////AP///////90AAAAAAAAAAAAA////////////////////AAAAAAAAAAAAAAAAAD7/////////AQAAAAAAAAAAAAAAAAAAAAAA/////////wAAAAAAAAAAAAAAAAAAAAAAAP//AAAA/5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="},"wash":4,"mass_trace":[182.229,182.281,182.336,182.39,182.406,182.349,182.165,181.943,181.724,181.536,181.434,181.398,181.426,181.555,181.691,181.85,182.031,182.226,182.414,182.518,182.539,182.548,182.534,182.495,182.422,182.347,182.207,182.01,181.828,181.654,181.503,181.391,181.342,181.368,181.443,181.575,181.733,181.909,182.045,182.145,182.205,182.212,182.193,182.217,182.24,182.249,182.241,182.219,182.206,182.179,182.101,182.011,181.913,181.814,181.765,181.66,181.565,181.487,181.436,181.417,181.442,181.516,181.64,181.799,181.93,182.059,182.165,182.239,182.257,182.278,182.304,182.344,182.375,182.417,182.446,182.45,182.374,182.231,182.01,181.797,181.608,181.49,181.408,181.391,181.462,181.565,181.671,181.795,181.922,181.984,182.037,182.08,182.147,182.215,182.234,182.264,182.303,182.324,182.253,182.065,181.84,181.642,181.532,181.456,181.442,181.49,181.59,181.788,181.991,182.164,182.287,182.389,182.468,182.539,182.538,182.513,182.467,182.401,182.307,182.154,182.035,181.944,181.843,181.696,181.544,181.438,181.37,181.356,181.401,181.494,181.621,181.77,181.912,182.043,182.141,182.211,182.205,182.191,182.204,182.168,182.133,182.112,182.143,182.179,182.222,182.263,182.231,182.14,182.03,181.906,181.728,181.596,181.495,181.422,181.384,181.402,181.509,181.637,181.781,181.908,181.998,182.084,182.162,182.202,182.226,182.291,182.347,182.402,182.431,182.437,182.466,182.3,182.083,181.87,181.685,181.536,181.421,181.358,181.385,181.501,181.65,181.825,181.987,182.128,182.201,182.247,182.283,182.339,182.37,182.323,182.325,182.334,182.266,182.063,181.883,181.706,181.554,181.463,181.418,181.447],"moving":false},{"id":"primrose","params":{"R":11,"T":20,"b":[0.3333,0.25,1.0],"m":0.3519,"s":0.07977,"kn":1,"gn":1},"pattern":{"h":25,"w":25,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTAAAAAAAAAP8KAAAAAAAAAAAAAAAAAAD/////kwAA/////wAAAAAAAAAAAAAAAAD/////////////////AAAAAAAAAAAAAAB2/////////////////7kAAAAAAAAAAAAA////////////////////AAAAAAAAAAAAAP///////////////////wAAAAAAAAAAAAAA/////wAAAAAA/////8EAAAAAAAAAAAAAnf///yIA6/i/AF3///+LAAAAAAAAAAAA//////8AAOcA3RoA//////8mAAAAAAAA////////CI3iAAD/bP///////wAAAAAAAP//////AAAE/04B/wAA//////8AAAAAAACf//////+ZAABCAADk///////kAAAAAAAAAP///////+H/R8v/////////AAAAAAAAAAD//////////wz//////////wAAAAAAAAAAAP///////////////////xsAAAAAAAAAAAAAAAAJ/////////xEA5QAAAAAAAAAAAAAAAAAANf////////8RAAAAAAAAAAAAAAAAAAAAAAD/////////AAAAAAAAAAAAAAAAAAAAAAAAAOP+uf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="},"wash":6,"mass_trace":[212.61,212.715,212.848,212.916,212.902,212.852,212.729,212.574,212.403,212.249,212.108,211.897,211.691,211.542,211.53,211.609,211.761,211.992,212.239,212.429,212.508,212.493,212.382,212.188,211.954,211.764,211.658,211.641,211.713,211.881,212.12,212.385,212.64,212.869,213.044,213.115,213.038,212.864,212.623,212.382,212.165,211.978,211.824,211.704,211.622,211.584,211.607,211.665,211.706,211.733,211.754,211.749,211.716,211.667,211.671,211.689,211.727,211.784,211.837,211.899,211.951,212.024,212.089,212.138,212.18,212.197,212.172,212.12,212.056,211.986,211.919,211.873,211.878,211.921,211.99,212.078,212.17,212.246,212.28,212.282,212.242,212.162,212.06,211.947,211.837,211.749,211.702,211.71,211.776,211.892,212.084,212.265,212.42,212.549,212.573,212.518,212.387,212.201,212.01,211.83,211.688,211.588,211.547,211.558,211.588,211.635,211.701,211.776,211.849,211.907,211.941,211.945,211.909,211.867,211.801,211.72,211.674,211.696,211.724,211.752,211.776,211.793,211.804,211.819,211.798,211.765,211.762,211.782,211.819,211.866,211.921,211.979,212.033,212.087,212.134,212.166,212.184,212.186,212.167,212.146,212.133,212.126,212.103,212.096,212.112,212.151,212.239,212.339,212.431,212.502,212.552,212.561,212.528,212.485,212.405,212.31,212.212,212.111,212.029,211.981,211.969,211.988,212.039,212.107,212.191,212.251,212.275,212.203,212.068,211.911,211.732,211.548,211.363,211.207,211.095,211.054,211.023,211.09,211.205,211.378,211.619,211.857,212.066,212.211,212.258,212.272,212.216,212.078,211.873,211.662,211.486,211.361,211.311,211.345,211.41,211.534,211.674,211.818,211.932,212.016],"moving":false},{"id":"target","params":{"R":13,"T":10,"b":[1.0,0.8333],"m":0.2948,"s":0.03983,"kn":1,"gn":1},"pattern":{"h":21,"w":21,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFX//////wEAAAAAAAAAAAAAAAAA////////////AAAAAAAAAAAAAAD//////////////wAAAAAAAAAAAP////8AAAAC//////8AAAAAAAAADv///wAA////DgD///9YAAAAAAAA/////+///////wAA////AAAAAAAA////EP//AAAA//8A////AAAAAAAA////AP//AAAA//8A////AAAAAAAA////AP//AAAA//8Q////AAAAAAAA////AAD//////+7/////AAAAAAAAWP///wAO////AAD///8PAAAAAAAAAP//////AgAAAP////8AAAAAAAAAAAD//////////////wAAAAAAAAAAAAAA////////////AAAAAAAAAAAAAAAAAAH//////1YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":1,"mass_trace":[142.503,143.058,143.298,143.377,143.452,143.46,143.557,144.321,145.124,145.56,145.841,145.419,144.922,144.46,144.008,143.688,143.603,143.537,143.81,144.452,144.975,145.343,145.529,145.008,144.51,143.94,143.313,142.584,141.965,141.87,142.379,142.953,143.282,143.36,143.437,143.452,143.531,144.127,145.015,145.478,145.794,145.542,145.025,144.559,144.097,143.74,143.597,143.548,143.654,144.333,144.865,145.296,145.53,145.136,144.624,144.064,143.455,142.744,142.065,141.832,142.238,142.847,143.259,143.343,143.421,143.449,143.507,143.93,144.895,145.388,145.732,145.648,145.117,144.658,144.192,143.801,143.604,143.564,143.534,144.203,144.749,145.231,145.507,145.257,144.74,144.187,143.591,142.903,142.187,141.826,142.11,142.73,143.198,143.327,143.405,143.45,143.485,143.733,144.727,145.29,145.679,145.735,145.167,144.756,144.29,143.871,143.624,143.587,143.531,144.064,144.633,145.147,145.464,145.369,144.857,144.308,143.722,143.059,142.324,141.852,142.001,142.594,143.132,143.31,143.389,143.455,143.469,143.576,144.511,145.195,145.614,145.803,145.319,144.853,144.389,143.948,143.658,143.615,143.533,143.919,144.532,145.05,145.4,145.47,144.949,144.426,143.849,143.208,142.472,141.908,141.915,142.469,143.029,143.293,143.372,143.448,143.457,143.55,144.267,145.094,145.538,145.836,145.455,144.949,144.488,144.032,143.702,143.6,143.54,143.767,144.42,144.945,145.328,145.531,145.044,144.541,143.974,143.353,142.628,141.99,141.857,142.338,142.924,143.277,143.356,143.433,143.451,143.525,144.074,144.983,145.455,145.777,145.573,145.055,144.587,144.123,143.756,143.598,143.552,143.61],"moving":false},{"id":"coral","params":{"R":13,"T":10,"b":[1.0,0.16666666666666666],"m":0.5308,"s":0.10523,"kn":1,"gn":1},"pattern":{"h":65,"w":63,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////////////////////////////0gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//////////////////////////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABv//////////AAD/////AAD///////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////8AAAD///8AAAD/////AADy////////QgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//////////////////8AAP////8AAAD/////AAAA/////////wwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//////////wAAAP////8AAP////8AAAD/////AAAA//////////8JAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/////////AAAAAP///wAAAP////8AAAD/////AAD//////////////wAAAAAAAAAAAAAAAAAAAAAAAAAA/f///////////wAA/////wAAAP////8AAAD/////AP////8AAAD//////wAAAAAAAAAAAAAAAAAAAAAAAAD//////////////////////wAAAP////8AAP////8AAP////8AAAD///////8AAAAAAAAAAAAAAAAAAAAAAP//////AAAA/////////////wAAAP///wAA/////wAAAP////8AAAD///////8AAAAAAAAAAAAAAAAAAAAA//////+PAAAAAP///wAA////////////AAAA/////wAAAP////8AAP//////////AAAAAAAAAAAAAAAAAAD/////////AAAAAAAAAAAAAAD///////8AAAAA/////wAAAP///6sA//////+e////AwAAAAAAAAAAAAAAAAD/////////////////AAAAAAAA//////8AAAAA////AAAA/////wAA/////wAA/////wAAAAAAAAAAAAAAAGP//////////////////////wAAAAD///94AAD/////AAAA/////wAA/////wAAAP////8AAAAAAAAAAAAAAP////////////////////////8AAAAA//////////+2AAD/////AAAA/////wAA//////8AAAAAAAAAAAAAAP////8AAAAA////////////////AAAAAP////////8AAAD/////AAAA/////wAA////////AAAAAAAAAAAA//////8AAAAAAAAAAAAAAAD//////wAA//////////8AAP////8AAAAA/////zb/////////AAAAAAAAAAAA//////8AAAAAAAAAAAAAAAAA////////////AAAAAAD///////8AAAD/////AAD/////////AAAAAAAAAAAA//////////////////8AAAAA////////////AAAAABz//////wAAAP////8AAAD//wAAAP///wAAAAAAAAAA////////////////////AAAA////AAAA////AAAAAP//////AAAA//////8AAP///wAAAP///wAAAAAAAAAA//////////////////////////8AAAAA/////wAA//////8AAAD//////wAAAP////////////8AAAAAAAAA/////wAA////AAAA//////////8AAAAA/////////////wAAAP//////AAAA//////////////8AAAAAAAAA/////wAAAP8AAAAAAP////////8AAAD/////////////AAAA//////8AAAAA///////////////aAAAAAAAAOv//rgAAAP//AAAAAP8AAAAA//////////8AAAD/////AAAA/////wAAAAD/////AAAAAP//////AAAAAAAA/////wAA//////////8AAAAA/////////wAAAAD///8AAAD//////wAAAP////8AAAAAAAD/////AAAAAAAA/////wD///////////8AAAAA/////////wAAAAD///8AAP//////AAD///////8AAAAAAAD/////AAAAAAAA////////////////////AAD///8AAAD///8AAAD///8AAP////8AAP//////////////////////AAAAAAAA//////////8AAAAA//////////8AAAD///////////8AAP///wAAAP////8AAAD/////////////AAAAAAAA//////////8AAAAA//////////8AAAD///////////8AAP///wAAAP///wAAAAD/////////////AAAAAAAA//////8AAAAAAAAA////AP////8AAAD/////AP////8AAP///wAAAP///wAAAAD/////AP////8AAAAAAAAAAP///wAAAP////////8AAAD///8AAAD///8AAAD///8AAP////8AAP///wAAAAD///8AAAD///8AAAAAAAAAAP///wAAAP////////8AAAAA//8AAP///wAAAAD///9+AP////////////8AAP///wAAAAD//28AAAAAAAAAAP///wAA//////////8AAAAA/////////wAAAAD///8AAAD///////////////////8AAHL//0wAAAAAAAAAAP///////////wAAAP///wD///////////8AAAD///8AAAD///88AAD//////////////////8AAAAAAAAAAAP//////////AAAAAP////////////////////////8AAAAA//8AAAAAAP////////////////8AAAAAAAAAAP//////////AAAAAP//////////AAAA//////////8AAAD///8AAAAAAAAAAAAA//////////8AAAAAAAAAAP//////AAAAAAAA/////wAA//8AAAAAAP///////////////////wAAAAAAAAAAAAD///////8AAAAAAAAAAAD///8XAAAA////////AAAAAP//AAAAAP//AAAAAP////////////////////8AAAAA/////wAAAAAAAAAAAAD/////AAD///////8AAAAA/////wAA////AAAAAP////8A////////////////AAAA/////wAAAAAAAAAAAABR////Lf///////wAAAAD/////////////AAAAAP///wAAAAD/////////////////////AAAAAAAAAAAAAAAA////////////AAAAAP///////////////wAA/////wAAAAAAAAAAAAD///////////9XAAAAAAAAAAAAAAAA//////////8AAAAA//////8AAP///////////////wAAAAAA//8AAAAAAP////////8AAAAAAAAAAAAAAAAA////////AAAAAP///////wAAAAD/////////////////////////AAAAAAD///////IAAAAAAAAAAAAAAAAAAP////8AAAAA//////8AAAAAAAD/AAAAAP///wAAAP///////////wAAAAD//////wAAAAAAAAAAAAAAAAAAAP////8AAAD//////wAAAAAA////AAAAAP//AAAAAP//////////////////////AAAAAAAAAAAAAAAAAAAAAAD//////////////wAAAP//////AAAAAP//AAAAAP///wAAAP////////////8AAAAAAAAAAAAAAAAAAAAAAAC5////////////AAD//////////wAA/////wAA/////wAAAAD//////////wAAAAAAAAAAAAAAAAAAAAAAAAAA/////////wAAAP////////////////////8A/////wAAAAD/////////AAAAAAAAAAAAAAAAAAAAAAAAAAAA////////AAAAAP////8AAAD///////////8AAP////8AAP////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////wAAAP////8AAAD///8AAP////8AAAD//////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////8A/////wAAAAD///8AAAD///8AAAD///////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////////////wAAAP////8AAAD///////////////oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//////////wAA//////8AAP///////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////////////////////////////////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"},"wash":8,"mass_trace":[1892.002,1892.039,1892.089,1892.115,1892.099,1892.087,1892.094,1892.112,1892.144,1892.186,1892.231,1892.28,1892.27,1892.239,1892.214,1892.196,1892.185,1892.181,1892.18,1892.176,1892.154,1892.138,1892.132,1892.134,1892.133,1892.212,1892.289,1892.372,1892.457,1892.533,1892.598,1892.65,1892.688,1892.709,1892.711,1892.683,1892.683,1892.668,1892.625,1892.544,1892.417,1892.255,1892.124,1892.009,1891.897,1891.794,1891.702,1891.619,1891.539,1891.464,1891.387,1891.311,1891.241,1891.183,1891.142,1891.037,1890.896,1890.774,1890.667,1890.578,1890.508,1890.457,1890.411,1890.47,1890.548,1890.646,1890.765,1890.903,1891.047,1891.178,1891.317,1891.467,1891.628,1891.799,1891.985,1892.158,1892.336,1892.52,1892.699,1892.798,1892.885,1892.964,1893.039,1893.111,1893.181,1893.235,1893.271,1893.251,1893.162,1893.056,1892.923,1892.792,1892.655,1892.511,1892.363,1892.214,1892.072,1891.946,1891.835,1891.734,1891.702,1891.705,1891.724,1891.758,1891.78,1891.791,1891.799,1891.805,1891.806,1891.8,1891.78,1891.785,1891.805,1891.811,1891.801,1891.773,1891.72,1891.675,1891.683,1891.694,1891.719,1891.759,1891.811,1891.876,1891.944,1891.993,1892.023,1892.043,1892.05,1892.055,1892.008,1891.875,1891.731,1891.575,1891.416,1891.257,1891.101,1890.952,1890.905,1890.879,1890.87,1890.879,1890.91,1890.962,1891.001,1891.05,1891.109,1891.166,1891.242,1891.341,1891.467,1891.614,1891.784,1891.978,1892.133,1892.265,1892.403,1892.551,1892.708,1892.873,1893.034,1893.172,1893.28,1893.284,1893.265,1893.233,1893.181,1893.11,1893.021,1892.914,1892.79,1892.652,1892.506,1892.357,1892.205,1892.055,1891.961,1891.864,1891.796,1891.737,1891.679,1891.625,1891.574,1891.527,1891.484,1891.44,1891.402,1891.412,1891.418,1891.396,1891.357,1891.301,1891.225,1891.23,1891.236,1891.262,1891.309,1891.375,1891.462,1891.566],"moving":false},{"id":"maze","params":{"R":8,"T":10,"b":[1.0,0.0833,0.1667],"m":0.4327,"s":0.06348,"kn":1,"gn":1},"pattern":{"h":62,"w":64,"b64":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD3//////////j///////////////////9eAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJD//////wD//wD/Qv//AP//AP//AP/////X//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQP//r/8AAP//AAAA/wAA/wD/AAD//wD/AAD/AP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8g/wD//wD/AP////////8A/////wD//////wD/AP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP8AAP///wD//wAAAAD/AP8AAP8A/wAA//8A/wD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8A/wD1//8AAP8AAAAA//8A/wD/AP//AP8A/wAA//8A/wD//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8A//8AAAD//wD///////8A//8A/wD/AAD/AP//AP8AAP8A////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAD///8AAP8AAAAAAAAAAP8AAP8A//8A/wAA/wD/AP//AP8A//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8A////AAD///8A//8A//9KK/8A////AAD/AP8AAP8A/wD/AAD/AP//iAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wAA//8AAAD/AAD/AP//AP8AAP8AAP8A/wAA//8AAP8A/////wD/O/8AAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AAD///8A//8A/wAAAAD/AP//AAD/AP//AAD/AP//AP8AAP8A7QD//wAAAAAAAAAAAAAAAAAAAAAA//////8A////AAD//wD/AP////////8AAP///wAA////AAD/AAD/AP//APwA//8IAAAAAAAAAAAAAAAAAAAAAP//AP//AAAA//8AAP8A/wAA/wAAAAD/AAD/AAD/AAAAAP///wD//wD/AAD/AP8O/wAAAAAAAAAAAAAAAAAAAAD//wAA////AAD//wD/AP//AP8A//8A/////wAA////////AAD//wAA/////wD/AP//AAAAAAAAAAAAAAAAAAD/AP///wAA//8AAAAA/wD/AAD/AP//AAAAAAD//wAA/wAAAP//AAD//wAAAAD//////zoAAAAAAAAAAAAAAAD//wD/AP8AAAAA//////8A/wD//wAAAP////8A/wAA/wAA/wD//wAA//8A//8A/wAAAKT/AAAAAAAAAAAAAAAS/////wD/////AAAA/wAA//8A/wD//wD/AAD/AP8A//////8AAAD//wAAAP//AP8A/////8YAAAAAAAAAAAAA/7QAAAD/AAAA////AP8AAP8AAP8A//8A/wAA/wD//wAAAAAA/+kA//8A//8AAAD/AP8AANL/AAAAAAAAAAAAAP///////wD/AAAA/wD/////AP//AP8AAP////8A/wAA////AAH/AAAAAP8A//8B/wD/AP///wAAAAAAAAAAAP//AP8AAAAA////AP8AAAAAAP8AAAD///8AAAD/AP8A//8A//8AAP//////AP//AAD///////8AAAAAAAAAAAD//wD//////wAA/wD//wCx/wD/AP//AP//AP//AAD/AP8AAAAA//8AAAAA/wAAAAD//wAAAAD/AAAAAAAAAAAA////AP8AAP8AAP8A//8A/wAA/wD//wAAAAD//wD//wD/AP//AP//AP//AP//////AAAA////1gAAAAAAAAAAAFYA/wD/AAD/////AP8AAP8A//8AAAD/////AAAA/wAA/wD//wD/AAD//wAAAAAAAAD///8AyP8AAAAAAAAAAPf///8A////AAAAAP//AP//AP8A//8A/wAA/wD//wD///8AAAAA/wD/AAD//wD//////wD/AP//AAAAAAAAABj///8A/wAA/wD//wD/AAD/AAD/AP//AP8AAP8A/wAA/wAA//////8A//8A/wAA/wAAAAAA/////wAAAAAAAADiAQAAAP//AAAA//+gAP//AP///wAAAAD/////AP8A//8A/wAAAAD/AAD///8A//8A/////wAAAP8AAAAAAAAA//////8A/////wAA/wD//wD/AAD/////AAAAAAD/AP8AAP8A//8A////AAD/AP8AAP8AAP8A////AAAAAAAAAP//AP8AAP8AAP8AAP8AAAAA/wAA/wAA/wD//////wD/AP//AP//AAAA/wAA/wD/AP//AAD/AP//zgAAAAAAAAD/CQD/////AAD/////AP//AP////8AAP///wAAAAAA/wAAAP8AAP//AP////8A//8AAP////8AVAAAAAAAAAAA7P//AP8AAP//AAAAAAD//wAAAAAA//8AAAAA/////wD//wD//wAA/wD/AAD/AAAAAP8AAAD///8AAAAAAAAAAP8A/wD/AAAA/wD/////AAD/////AP//AP////8AAP8A//8AAP//AP8A//8A////////AP//AP//AAAAAAAAAPv/AP8A/////wAA/wAA/wAA/wAA//8AAAD/AAD/AAD/AAAA//8A/wD/AAD//wAAAAAA/wD//wAA/wAAAAAAAAD//////wAAAP8A//8AAP////8AAP8AAP///wAA////AP//AP8AAP8A//8AAAD/////AP8AAP////8AAAAAAAAA/wAAAP8A/wD//wAA//8AAAAA//8A////AAD//wAA/wAA/wD/AP//AAD///8A/wAA/wD///8AAP//AAAAAAAAAP//////AP8AAP8AAP//AP//AP//AP8AAAD/AAD/AP//AP8A//8AAP//AAD/AP8AAP8AAAD/////AAAAAAAAAAD///8A/wD//wAA//8AAAD//wAAAAD/AP///wAA/wAA/wD//wD//wD//wD//wD///////8AAAD/AAAAAAAAAAAAAP8AAP8AAAD/AP//AP//AAD//////wD/AAD/////AP8AAP8AAP//AAAA/wAA/wAAAAD///8A/wAAAAAAAAAAAAD///////8A/wAAAAD//wD//wAAAAAA/wAA/wAA/wD//wD//wAAAP//AP8A//8A//8A/wD///8AAAAAAAAAAAAA//8AAAD/AAD/////AAD//wAA//////////8AAP8AAP8AAP///wD//wD/AP//AP//AP8AAAD/AAAAAAAAAAAAAAD///////8A/wAAAP8A//8A//8AAAAAAAAA/////wD///8AAP8AAAAA/wAA/wAAAAD//////wAAAAAAAAAAAAAA////AAD/AP8A/wD//wAA/wAAAP//////AAAAAP8AAAD//wD/////AP8AAP//////AAAA//8AAAAAAAAAAAAAAAD//wD//wD/AP8AAP8AAP8A////AAAA/////wD///8AAP8A/wAA/wD///8AAAD/////pv8AAAAAAAAAAAAAAAAAAP///wD//wD//wD/AP//AP8AAAD/AAAAAP8AAAD//wD/AP8AAP8AAAAA//8AAAAA////AAAAAAAAAAAAAAAAAAAA//8A//8AAv///wD/AAD/AP///////wAA//8AAP8A/wD//////////wD/////AP//AAAAAAAAAAAAAAAAAAAAAAAA//8A//8AAAAA/wD//wD/AAAAAP///wD/////AP8AAAAAAAAAAP8A/wAA////AAAAAAAAAAAAAAAAAAAAAAAAAAD/Lv8A//////8AAAAA/wD//wAAAP8AAAAA/wD//////wD//wD/AP//AP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//AP8AAAAA/wD///8A/////wD/////AP8AAAAAAP8A//8A/wAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wD/AP//AP8A/wAAAAAAAP8A/wAA/wD//wD//wD/AAD/AP//AP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPf//wD//wD/AP8A/////wD/AP8AAP8AAP8A//8A//8A/wAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//93/wD//wD/AP8AAP8A/wD//wD//wD/AAD/AAD/AP//AP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8A//8A/wD/AAD/AP8AAP8AAP8A//8A//8A//8A////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//40AAP8A/////wD//wD//wD/AAD/AAD/AP//AP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////AP8AAP//AP8AAP8A//8A/////wAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///Es////wD//wD//wD/AAD/AP8AAP//////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////AP//AP9oxv8A//8w/+j//////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///v/////w/////57ggwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="},"wash":3,"mass_trace":[1441.434,1441.087,1441.476,1442.122,1442.612,1442.305,1441.469,1441.671,1442.272,1442.355,1441.965,1441.788,1440.961,1441.628,1443.294,1442.554,1441.558,1441.711,1442.305,1442.571,1442.649,1441.267,1440.437,1442.273,1443.425,1443.153,1442.732,1441.081,1439.635,1441.571,1444.27,1443.221,1441.838,1440.185,1440.168,1441.383,1443.055,1442.701,1441.697,1440.702,1441.017,1441.787,1442.106,1441.28,1441.064,1441.951,1442.189,1441.465,1440.856,1440.741,1442.093,1442.626,1442.379,1441.077,1440.582,1441.659,1443.172,1443.229,1441.996,1440.811,1441.216,1441.817,1443.458,1443.039,1441.909,1440.485,1440.616,1442.617,1444.02,1443.059,1441.265,1440.97,1440.815,1442.077,1443.562,1443.53,1441.831,1441.454,1440.889,1440.548,1441.571,1442.793,1443.317,1443.075,1440.95,1439.68,1441.048,1442.789,1443.371,1442.506,1441.354,1439.89,1440.642,1442.792,1443.627,1442.45,1441.179,1439.846,1440.597,1442.652,1442.864,1441.928,1440.44,1440.163,1441.438,1442.922,1443.251,1442.06,1441.435,1441.099,1440.514,1441.146,1443.045,1443.085,1442.192,1441.393,1440.412,1441.0,1442.144,1444.062,1444.118,1441.88,1439.21,1439.362,1442.966,1445.204,1444.686,1441.557,1438.981,1439.233,1443.298,1446.018,1444.557,1440.794,1438.135,1439.211,1442.899,1445.266,1443.849,1440.166,1438.705,1439.907,1441.408,1442.516,1442.381,1441.496,1441.003,1441.499,1440.824,1441.75,1442.932,1442.109,1440.468,1440.373,1441.226,1442.257,1443.293,1443.118,1441.238,1440.278,1440.533,1442.249,1443.705,1443.804,1441.347,1440.023,1440.372,1442.121,1443.493,1443.284,1441.533,1440.268,1440.399,1441.254,1442.344,1443.201,1442.306,1441.658,1441.728,1441.821,1442.834,1442.812,1441.276,1440.677,1441.605,1443.186,1442.534,1442.146,1441.729,1441.799,1441.808,1442.501,1441.334,1441.236,1441.759,1442.279,1441.91,1441.318,1440.557,1440.493],"moving":false}];
+// Field-guide runtime: every plate runs its specimen live from the saved pattern.
+(function () {
+  "use strict";
+  const N = 128;
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const hex = (c) => {
+    c = c.replace("#", "");
+    if (c.length === 3) c = c.split("").map((x) => x + x).join("");
+    const n = parseInt(c, 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  };
+  let PAL = {};
+  function readPalette() {
+    PAL = { paper: hex(css("--paper")), ink: hex(css("--ink")), soft: hex(css("--ink-soft")), rule: hex(css("--rule")),
+      accent: hex(css("--accent")), washes: [] };
+    for (let i = 1; i <= 8; i++) PAL.washes.push(hex(css("--wash-" + i)));
+    plates.forEach((p) => { p.lut = makeLUT(PAL.washes[p.washIdx]); p.dirty = true; drawFigures(p); });
+  }
+  function makeLUT(w) {
+    // density -> colour: paper, through the species' wash, deepening to ink at the core
+    const lut = new Uint8ClampedArray(256 * 3);
+    for (let i = 0; i < 256; i++) {
+      const a = i / 255, t = Math.min(1, Math.pow(a, 0.75) * 1.3), k = a > 0.55 ? (a - 0.55) / 0.45 * 0.7 : 0;
+      for (let c = 0; c < 3; c++) {
+        const v = PAL.paper[c] * (1 - t) + w[c] * t;
+        lut[i * 3 + c] = v * (1 - k) + PAL.ink[c] * k;
+      }
+    }
+    return lut;
+  }
+
+  const plates = [];
+  const ang = new Float64Array(N);
+  for (let i = 0; i < N; i++) ang[i] = 2 * Math.PI * i / N;
+  const cosA = ang.map(Math.cos), sinA = ang.map(Math.sin);
+  function com(A) {
+    let ys = 0, yc = 0, xs = 0, xc = 0;
+    for (let y = 0; y < N; y++) {
+      let row = 0;
+      for (let x = 0; x < N; x++) { const v = A[y * N + x]; row += v; xs += v * sinA[x]; xc += v * cosA[x]; }
+      ys += row * sinA[y]; yc += row * cosA[y];
+    }
+    const f = (s, c) => ((Math.atan2(s, c) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) * N / (2 * Math.PI);
+    return [f(ys, yc), f(xs, xc)];
+  }
+
+  function setup(el) {
+    const spec = SPECIMENS.find((s) => s.id === el.dataset.id);
+    if (!spec) return;
+    const cv = el.querySelector("canvas.world");
+    const p = { el, spec, cv, ctx: cv.getContext("2d"), img: null, running: true, visible: false, track: false,
+      speed: 1, washIdx: (spec.wash || 1) - 1, step: 0, dirty: true, lut: null, W: N };
+    p.scale = el.querySelector(".scale i");
+    p.sizeScale = () => { if (p.scale) p.scale.style.width = (cv.clientWidth * spec.params.R / p.W).toFixed(1) + "px"; };
+    p.setView = (lens) => {
+      p.track = lens; p.W = lens ? N / 2 : N;
+      cv.width = p.W; cv.height = p.W; p.img = p.ctx.createImageData(p.W, p.W);
+      p.sizeScale();
+      const b = el.querySelector('[data-act="track"]');
+      if (b) b.textContent = lens ? "Show the whole world" : "Under the lens";
+      p.dirty = true;
+    };
+    p.setView(!spec.moving);
+    p.pattern = decodePattern(spec.pattern);
+    p.reset = () => { p.sim = new Lenia(N, spec.params); p.sim.place(p.pattern, spec.pattern.h, spec.pattern.w); p.step = 0; p.dirty = true; };
+    p.reset();
+    p.clock = el.querySelector(".clock");
+    el.querySelectorAll("[data-act]").forEach((b) => b.addEventListener("click", () => {
+      const act = b.dataset.act;
+      if (act === "play") { p.running = !p.running; b.setAttribute("aria-pressed", String(!p.running)); b.textContent = p.running ? "Pause" : "Resume"; }
+      if (act === "reset") p.reset();
+      if (act === "track") p.setView(!p.track);
+      if (act === "fast") { p.speed = p.speed === 1 ? 4 : 1; b.setAttribute("aria-pressed", String(p.speed > 1)); }
+    }));
+    plates.push(p);
+  }
+
+  function render(p) {
+    const A = p.sim.A, d = p.img.data, lut = p.lut, W = p.W;
+    let oy = 0, ox = 0;
+    if (p.track) { const c = com(A); oy = Math.round(c[0] - W / 2); ox = Math.round(c[1] - W / 2); }
+    for (let y = 0; y < W; y++) {
+      const sy = ((y + oy) % N + N) % N;
+      for (let x = 0; x < W; x++) {
+        const sx = ((x + ox) % N + N) % N;
+        const v = (A[sy * N + sx] * 255) | 0, o = (y * W + x) * 4;
+        d[o] = lut[v * 3]; d[o + 1] = lut[v * 3 + 1]; d[o + 2] = lut[v * 3 + 2]; d[o + 3] = 255;
+      }
+    }
+    p.ctx.putImageData(p.img, 0, 0);
+    if (p.clock) {
+      const T = p.spec.params.T;
+      p.clock.textContent = "step " + p.step.toLocaleString("en-GB") + " · t = " + Math.round(p.step / T).toLocaleString("en-GB");
+    }
+    p.dirty = false;
+  }
+
+  // ---- small line figures: kernel profile, growth curve, mass record
+  function line(cv, xs, ys, opts) {
+    const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    cv.width = Math.max(1, Math.round(r.width * dpr)); cv.height = Math.max(1, Math.round(r.height * dpr));
+    const c = cv.getContext("2d"), W = cv.width, H = cv.height, pad = 4 * dpr;
+    c.clearRect(0, 0, W, H);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    const y0 = opts.ymin !== undefined ? opts.ymin : Math.min(...ys), y1 = opts.ymax !== undefined ? opts.ymax : Math.max(...ys);
+    const X = (x) => pad + (x - x0) / (x1 - x0 || 1) * (W - 2 * pad);
+    const Y = (y) => H - pad - (y - y0) / (y1 - y0 || 1) * (H - 2 * pad);
+    const rgb = (a) => "rgb(" + a.join(",") + ")";
+    c.lineWidth = dpr; c.strokeStyle = rgb(PAL.rule);
+    if (opts.zero !== undefined) { c.beginPath(); c.moveTo(pad, Y(opts.zero)); c.lineTo(W - pad, Y(opts.zero)); c.stroke(); }
+    if (opts.mark !== undefined) { c.setLineDash([2 * dpr, 3 * dpr]); c.beginPath(); c.moveTo(X(opts.mark), pad); c.lineTo(X(opts.mark), H - pad); c.stroke(); c.setLineDash([]); }
+    c.strokeStyle = rgb(PAL.ink); c.lineWidth = 1.3 * dpr; c.beginPath();
+    xs.forEach((x, i) => (i ? c.lineTo(X(x), Y(ys[i])) : c.moveTo(X(x), Y(ys[i]))));
+    c.stroke();
+  }
+  function drawFigures(p) {
+    const s = p.spec, P = s.params, el = p.el;
+    const k = el.querySelector("canvas.kernel"), g = el.querySelector("canvas.growth"), m = el.querySelector("canvas.mass");
+    if (k) {
+      const xs = [], ys = [], B = P.b.length;
+      for (let i = 0; i <= 200; i++) {
+        const r = i / 200, Br = B * r, j = Math.min(Math.floor(Br), B - 1), q = Math.min(Br % 1, 1);
+        const core = P.kn === 2 ? (q * (1 - q) > 1e-9 ? Math.exp(4 - 1 / (q * (1 - q))) : 0) : Math.pow(4 * q * (1 - q), 4);
+        xs.push(r); ys.push(r < 1 ? core * P.b[j] : 0);
+      }
+      line(k, xs, ys, { ymin: 0, ymax: 1 });
+    }
+    if (g) {
+      const xs = [], ys = [], hi = Math.min(1, P.m + 6 * P.s + 0.05);
+      for (let i = 0; i <= 240; i++) {
+        const u = hi * i / 240;
+        const v = P.gn === 2 ? 2 * Math.exp(-(u - P.m) * (u - P.m) / (2 * P.s * P.s)) - 1
+          : 2 * Math.pow(Math.max(0, 1 - (u - P.m) * (u - P.m) / (9 * P.s * P.s)), 4) - 1;
+        xs.push(u); ys.push(v);
+      }
+      line(g, xs, ys, { ymin: -1.05, ymax: 1.05, zero: 0, mark: P.m });
+    }
+    if (m && s.mass_trace) {
+      const ys = s.mass_trace, xs = ys.map((_, i) => i);
+      const mn = Math.min(...ys), mx = Math.max(...ys), mid = (mn + mx) / 2, half = Math.max((mx - mn) / 2, mid * 0.02);
+      line(m, xs, ys, { ymin: mid - half * 1.15, ymax: mid + half * 1.15 });
+    }
+  }
+
+  // ---- one animation loop for the whole book, on a frame-time budget
+  let msPerStep = 3, rr = 0;
+  function frame() {
+    const live = plates.filter((p) => p.visible && p.running);
+    const budget = 11;
+    let allowed = Math.max(1, Math.floor(budget / msPerStep));
+    const t0 = performance.now();
+    let n = 0;
+    for (let i = 0; i < live.length && allowed > 0; i++) {
+      const p = live[(rr + i) % live.length];
+      for (let s = 0; s < p.speed && allowed > 0; s++) { p.sim.step(); p.step++; n++; allowed--; }
+      p.dirty = true;
+    }
+    rr++;
+    if (n) msPerStep = msPerStep * 0.9 + 0.1 * ((performance.now() - t0) / n);
+    plates.forEach((p) => { if (p.visible && p.dirty) render(p); });
+    requestAnimationFrame(frame);
+  }
+
+  function boot() {
+    document.querySelectorAll("[data-id]").forEach(setup);
+    readPalette();
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      const p = plates.find((q) => q.el === e.target); if (p) { p.visible = e.isIntersecting; p.dirty = true; }
+    }), { rootMargin: "100px" });
+    plates.forEach((p) => { io.observe(p.el); render(p); p.sizeScale(); });
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reduce.matches) plates.forEach((p) => {
+      p.running = false; const b = p.el.querySelector('[data-act="play"]');
+      if (b) { b.textContent = "Resume"; b.setAttribute("aria-pressed", "true"); }
+    });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readPalette);
+    new MutationObserver(readPalette).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => plates.forEach((p) => { drawFigures(p); p.sizeScale(); }), 150); });
+    requestAnimationFrame(frame);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+
+</script>
+</body>
+</html>

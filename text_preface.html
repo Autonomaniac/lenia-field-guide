@@ -1,0 +1,23 @@
+    <p class="dropcap">The specimens in this book were collected in a single search, run for about seven and a quarter hours on four processor cores. Before the search began I reproduced Bert Chan's Orbium, the frontispiece above, as a check that my world obeys the same laws as his. It glides as his does.</p>
+    <p>The collecting began badly. My first method seeded each random rule with a small blob of noise, and in some six hundred tries it never produced a creature that moved. To find out whether gliders were simply rare or my seeds were at fault, I gave Orbium's own rule 168 of my blobs. All 168 died. Large squares of noise, which I call soups, did better: under Orbium's rule about one soup in twenty condensed into an Orbium. So the search used soups from then on.</p>
+    <p>The search tried <span class="num">41,712</span> candidates of three kinds:</p>
+    <table class="tally">
+      <tr><td>Random rules, each seeded with a soup</td><td>13,013</td></tr>
+      <tr><td>Random rules whose edge of life I first located (three soups each)</td><td>7,967</td></tr>
+      <tr><td>Mutants of earlier finds, seeded with their parent's body</td><td>20,732</td></tr>
+      <tr class="total"><td>Candidates tried</td><td>41,712</td></tr>
+    </table>
+    <p>The edge of life is found by halving. For a given kernel, a soup dies if &mu; is too high and spreads over the world if &mu; is too low. I bisected between the two and seeded soups in the narrow band between. Random soups condensed into a separate body 0.59% of the time (77 bodies from 13,013 soups); soups at the edge did so 1.50% of the time (359 from 23,901). Most of what was tried did not live. The outcomes below count bodies, not candidates: one soup could yield up to three bodies, each tested on its own.</p>
+    <table class="tally">
+      <tr><td>Died away</td><td>28,799</td></tr>
+      <tr><td>Spread over the world</td><td>16,616</td></tr>
+      <tr><td>Settled into a faint, even haze</td><td>1,399</td></tr>
+      <tr><td>Failed when re-seeded from a disturbed copy</td><td>1,127</td></tr>
+      <tr><td>Lived, but failed the long-run tests on mass, size or shape</td><td>333</td></tr>
+      <tr><td>Would not stay a single body</td><td>147</td></tr>
+      <tr class="total"><td>Passed every test</td><td>9,290</td></tr>
+      <tr><td colspan="2" style="text-align:left;font-style:italic;font-size:0.85rem">The outcomes add to more than the candidates because a soup can yield several bodies.</td></tr>
+    </table>
+    <p>To pass, a creature had to run 5,000 steps with its mass neither collapsing nor climbing, stay one compact body, and then survive twice more from disturbed copies of itself for 3,000 steps each. Each copy had ten per cent noise added; one was turned by a right angle, the other by an arbitrary angle. Only 129 of the 9,290 survivors arose independently, from soups. The rest are descendants of those. Two ancestors, both still discs, account for 72% of all survivors.</p>
+    <p>The search kept an archive of 970 survivors that differed most from what it already had. From these I picked the 48 most different from one another, added eight I had noticed on earlier contact sheets, and ran all 56 again alone for 10,000 steps. Three failed that longer run, although they had passed everything before. One drifted in mass, one broke into pieces and one died. The seventeen plates are my choice from the 53 that held. I chose them to differ from one another, and I included one creature (Plate XVII) that I do not believe is real life in the sense Lenia intends.</p>
+    <p><em>What the search could not explore.</em> Only single-channel Lenia; the multi-channel and Flow-Lenia worlds were left alone. One world size, 128 cells square, which is small enough that travelling creatures meet themselves coming round. Kernel radii from 8 to 16 cells, and two families of kernel and growth curve. Persistence was tested for thousands of steps, not millions. Every measurement on a plate comes from one run, and every meeting between two copies was staged once. Finally, the search mostly explored by mutating a few early finds, so these plates show what lies near those finds more than a fair sample of all possible rules.</p>
